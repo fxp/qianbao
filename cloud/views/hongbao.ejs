@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>零钱包抢钱</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta content="telephone=no" name="format-detection"/>
+    <link rel="stylesheet" type="text/css" href="css/hongBao.css">
+</head>
+
+<body>
+<section class="wxhb_home">
+    <section class="bd">
+        <!--          第一次领取红包显示的金额-->
+        <section id="lqhbb" style="display:none" name="hide">
+            <section class="wl_fontone"></section>
+            <section class="fonttwo_lqbhb"><span style=" font-size:4em; ">1000</span><span
+                        style=" font-size:1em; ">元</span></section>
+        </section>
+        <!--           第二次进入红包链接，查看自己的链接-->
+        <section id="yy_hb_no" style="display:none" name="hide">
+            <section class="fontone">您当前红包总额</section>
+        </section>
+        <!--            打开A的红包头部-->
+        <section id="open_hb" style="display:none" name="hide">
+            <section class="fontone1_help">Ralph</section>
+            <section class="fontone_help">当前红包总额</section>
+        </section>
+        <!--            查看金额-->
+        <section id="money" style="display:none" name="hide">
+            <section class="fonttwo"><span style=" font-size:4em; " id="nowMoney">1000</span><span
+                        style=" font-size:1em; ">元</span></section>
+        </section>
+        <!--            帮朋友以后再次打开朋友的链接-->
+        <section id="help_hb" style="display:none" name="hide">
+            <section class="anniu_help">
+                <section class="anniu_sy_help" id="helpArea">
+                    <section class="wz">距离活动结束还有<span id="leftTime2">1</span>天</section>
+                    <section>您已成功帮好友聚财<span id="helpedMoney">50</span>元！</section>
+                </section>
+            </section>
+        </section>
+        <!--            第一次打开朋友的链接-->
+        <section id="open_hb_help" style="display:none" name="hide">
+            <section class="anniu_help_open">
+                <section class="anniu_help_sy">
+                    <section>帮TA&nbsp;你也能得红包</section>
+                </section>
+            </section>
+            <section class="anniu_open" id="help_friend">
+                <section class="anniu_sy_begins">帮好友聚财</section>
+            </section>
+        </section>
+        <!--            第一次打开发现红包已经满了-->
+        <section id="hb_man" style="display:none" name="hide">
+            <section class="anniu_man">
+                <section class="anniu_sy_begins">我也要领红包</section>
+            </section>
+        </section>
+        <!--            查看自己的红包-->
+        <section class="anniu1" id="dayTips" style="display:none" name="hide">
+            <section class="anniu_sy_wz">请于2月25日前使用</section>
+            <section class="anniu_yhyjc_wz">还有<span id="leftTime">5</span>天聚财结束</section>
+        </section>
+        <section class="anniu" id="myButtons" style="display:none" name="hide">
+            <section class="anniu_sy" id="useNow">立即使用</section>
+            <section class="anniu_yhyjc" id="inviteFriends">邀好友聚财</section>
+        </section>
+        <!--            活动结束了-->
+        <section id="help_hb_stop" style="display:none" name="hide">
+            <section class="anniu_help">
+                <section class="anniu_sy_help">
+                    <section class="wz">本次活动已结束</section>
+                    <section>敬请期待下次活动</section>
+                </section>
+            </section>
+        </section>
+        <!--            第一次打开链接，发现不能帮了，自己可以领-->
+        <section class="anniu_man" id="changeA" style="display:none" name="hide">
+            <section class="anniu_sy_begins" id="changeToA">我也要领红包</section>
+        </section>
+        <!--            第一次打开好友链接输入手机号文本-->
+        <section id="helpFrindsTips" class="anniu_help_begin" style="display:none" name="hide">
+            <section class="anniu_help_sy">
+                <section class="wz">帮好友聚财的同时</section>
+                <section>你也能获得1000元红包</section>
+            </section>
+        </section>
+        <!--            第一次打开链接输入手机号-->
+        <section id="inputphone" style="display:none" name="hide">
+            <section class="anniu_help_begin">
+                <section class="anniu_help_sy" style="display:none" name="hide">
+                    <section class="wz">输入手机号 抢1000元红包</section>
+                    <section>赢羊年开门财运</section>
+                </section>
+            </section>
+            <section class="anniu_dh_begin">
+                <input class="info" type="tel" placeholder="请输入手机号" title="手机号" name="mobile"
+                       pattern="^1(([38]\d)|(4[57])|(5[012356789])|(7[0678]))\d{8}$" maxlength="11" required/>
+            </section>
+            <section class="anniu_begin">
+                <section class="anniu_sy_begins" id="btn">领红包</section>
+            </section>
+        </section>
+    </section>
+</section>
+<!--        文本介绍在模板的外部，但是在home的内部-->
+<section id="intro" style="display:none" name="hide">
+    <section class="yiyou_btn_begin">红包成长二三事</section>
+    <section class="yiyou_btn_begin_num">
+        <section class="num1">1</section>
+        <section class="num2"></section>
+        <section class="num1_1">2</section>
+        <section class="num2"></section>
+        <section class="num1_1">3</section>
+    </section>
+    <section class="yiyou_btn_begin_num1">
+        <section class="num3">领红包</section>
+        <section class="num4">邀好友聚财</section>
+        <section class="num5">金额增长</section>
+    </section>
+    <section class="help_jc">
+        <ul>
+            <li>
+                <section class="no_money_show">
+                    <section class="money_name">
+                        <section class="begin_name_1">1.所得红包可直接用于零钱包账户进行投资理财。</section>
+                        <section class="begin_name_2">2.红包在零钱包账户进行投资理财时此活动同步结束。</section>
+                    </section>
+                </section>
+            </li>
+        </ul>
+    </section>
+</section>
+</section>
+<!--        好友帮助列表-->
+<section id="helplist" style="display:none" name="hide">
+    <section class="yiyou_btn">已有<span id="friendsNum">1</span>位好友帮你聚财</section>
+    <section class="help_jc" id="frindsList">
+        <ul>
+            <li>
+                <section class="apple_bz"></section>
+                <section class="money_show">
+                    <section class="money_name">
+                        <section class="money_name_1">微信号名名<span>10-17  19：00</span>
+                        </section>
+                        <section class="money_name_2">爱你无限帮聚财</section>
+                    </section>
+                    <section class="money_shu">+50</section>
+                </section>
+            </li>
+        </ul>
+    </section>
+    <section class="help_jc" id="nohelp" style="display:none" name="hide">
+        <ul>
+            <li>
+                <section class="no_money_show">
+                    <section class="money_name">
+                        <section class="no_name_1">目前还没有好友帮你聚财，</span></section>
+                        <section class="no_name_2">赶紧邀请好友聚财让红包变成1000元吧～</section>
+                    </section>
+                </section>
+            </li>
+        </ul>
+    </section>
+</section>
+<!--        弹出层-->
+<a id="close" class="close" href="javascript:;" title="关闭当前窗口" style="text-decoration:none;">
+    <div id="alertdiv" style="display: none; width: 100%; height: 100%; overflow: hidden;background:transparent;">
+        <div class="tanchukuang">
+            <div class="zhiyin"></div>
+            <div class="wz_content">
+                <div class="one_wz">选择<span><img src="./images/djfx.png"/></span>分享给朋友</div>
+                <div class="two_wz">让TA帮你聚财</div>
+                <div class="three_wz">你的红包金额可增至1000元</div>
+            </div>
+        </div>
+    </div>
+</a>
+<script src="https://leancloud.cn/scripts/lib/av-0.4.6.min.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script src="./js/hongBao.js"></script>
+</body>
+
+</html>
