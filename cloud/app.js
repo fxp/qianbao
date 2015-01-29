@@ -46,6 +46,7 @@ function getAccessToken(code) {
     }).then(function (httpResponse) {
         deferred.resolve(JSON.parse(httpResponse.text))
     }, function (err) {
+        console.log('weixin failed,%s', JSON.stringify(err))
         deferred.reject(err)
     })
     return deferred
@@ -207,7 +208,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                                 "country": "",
                                 "privilege": []
                             },
-                            "id": "54c9d56ae4b06b90a8009149",
+                            "id": "54c9d7a1e4b0c6c6afb793e2",
                             "phoneNo": "13488892615",
                             "createdAt": "2015-01-29T04:17:50.211Z",
                             "updatedAt": "2015-01-29T04:17:50.211Z"
@@ -229,7 +230,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                                 "country": "中国",
                                 "privilege": []
                             },
-                            "id": "54c9d56ae4b06b90a8009149",
+                            "id": "54c9d7a1e4b0c6c6afb793e2",
                             "createdAt": "2015-01-29T04:00:13.829Z",
                             "updatedAt": "2015-01-29T04:00:21.249Z"
                         }
