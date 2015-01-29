@@ -1,22 +1,44 @@
 AV.initialize("pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i", "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4");
 
+function initView() {
+    document.getElementById("lqhbb").parentNode.className = "bd";
+    var inputphone = document.getElementById("inputphone");
+    inputphone.style.display = "none";
+    inputphone.firstElementChild.firstElementChild.style.display = "none";
+    document.getElementById("helplist").firstElementChild.innerHTML = '已有<span id="friendsNum">0</span>位好友帮你聚财';
+    var open_hb = document.getElementById("open_hb");
+    open_hb.firstElementChild.className = "fontone1_help";
+    open_hb.lastElementChild.className = "fontone_help";
+    document.getElementById("money").firstElementChild.className = "fonttwo";
+    var hideArr = document.getElementsByName("hide");
+    for (var i = 0, len = hideArr.length; i < len; i++) {
+        hideArr[i].style.display = "none";
+    }
+}
+
+
 angular.module('ngQianbao', [])
     .controller('QianbaoController', function ($scope) {
-        var requestUri = GetRequest();
         var Hongbao = AV.Object.extend("Hongbao");
         var Support = AV.Object.extend("Support");
 
-        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname
-        window.history.pushState({path: newurl}, '', newurl);
+        function clearUrl() {
+            var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname
+            window.history.pushState({path: cleanUrl}, '', cleanUrl);
+        }
 
         function init() {
+            clearUrl()
             if (typeof me === 'undefined') {
                 // TODO
-                alert('should not be here')
+                alert('Internal error, should not be here')
             } else if (typeof target === 'undefined') {
+                // Seed users
                 if (typeof me.phoneNo === 'undefined') {
+                    // I have no phone number set
                     changeState('init')
                 } else {
+                    // I have set my number, so jump to target url
                     window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
                     changeState('mine')
                 }
@@ -59,23 +81,6 @@ angular.module('ngQianbao', [])
             }
         }
 
-////Views
-//初始化页面
-        function initView() {
-            document.getElementById("lqhbb").parentNode.className = "bd";
-            var inputphone = document.getElementById("inputphone");
-            inputphone.style.display = "none";
-            inputphone.firstElementChild.firstElementChild.style.display = "none";
-            document.getElementById("helplist").firstElementChild.innerHTML = '已有<span id="friendsNum">0</span>位好友帮你聚财';
-            var open_hb = document.getElementById("open_hb");
-            open_hb.firstElementChild.className = "fontone1_help";
-            open_hb.lastElementChild.className = "fontone_help";
-            document.getElementById("money").firstElementChild.className = "fonttwo";
-            var hideArr = document.getElementsByName("hide");
-            for (var i = 0, len = hideArr.length; i < len; i++) {
-                hideArr[i].style.display = "none";
-            }
-        }
 
         function checkPhone(phoneNo) {
             if (phoneNo.length === 11) {

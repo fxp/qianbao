@@ -11,9 +11,7 @@
     <script src="js/angular.min.js"></script>
     <script>
         var me = <%- (!!locals.me)?JSON.stringify(me):'undefined'%>;
-        me.id = (me.objectId) ? me.objectId : me.id;
         var target = <%- (!!locals.target)?JSON.stringify(target):'undefined'%>;
-        target.id = (target.objectId) ? target.objectId : target.id;
     </script>
 </head>
 

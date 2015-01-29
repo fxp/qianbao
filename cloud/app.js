@@ -189,11 +189,10 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
         })
     } else {
         if (__local) {
-            new AV.Query(Hongbao).get(req.params.hongbaoId)
+            new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     console.log('test data')
-                    res.render('hongbao', {
-                        me: {
+                    var me = {
                             "headimgurl": "",
                             "nickname": "这家伙",
                             "openId": "oAWh3t_Y023E4iWtc_lHxvOA6tNA",
@@ -213,8 +212,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                             "createdAt": "2015-01-29T04:17:50.211Z",
                             "updatedAt": "2015-01-29T04:17:50.211Z"
                         },
-                        //target: undefined
-                        target: {
+                        target = {
                             "phoneNo": "13488892615",
                             "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
                             "nickname": "冯小平",
@@ -233,17 +231,19 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                             "id": "54c9d7a1e4b0c6c6afb793e2",
                             "createdAt": "2015-01-29T04:00:13.829Z",
                             "updatedAt": "2015-01-29T04:00:21.249Z"
-                        }
+                        };
+                    me.id = (me.objectId) ? me.objectId : me.id;
+                    target.id = (target.objectId) ? target.objectId : target.id;
+                    res.render('hongbao', {
+                        me: me,
+                        //target: undefined
+                        target: target
                     })
                 }, function (err) {
-                    res.status(404).send()
+                    res.status(404).send('hongbao not exists,%s', targetHongbaoId)
                 })
-        } else if (__production) {
-            res.redirect(getOAuthUrl(targetHongbaoId))
-            // 当前环境为「生产环境」，是线上正式运行的环境
         } else {
             res.redirect(getOAuthUrl(targetHongbaoId))
-            // 当前环境为「测试环境」，云代码方法通过 HTTP 头部 X-AVOSCloud-Application-Production:0 来访问；webHosting 通过 dev.xxx.avosapps.com 域名来访问
         }
 
     }
