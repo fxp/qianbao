@@ -11,9 +11,9 @@ input:focus, a { outline: none; }
 
 
 html, body{ margin: 0; padding: 0; font-size:1em; font-weight: normal;font-family: Microsoft yahei,Arial, Helvetica, sans-serif !important; background:url(../images/wxqhb_top_bg.png) center top no-repeat #ff7c25;background-color:#ffbc4b;background-image:-webkit-linear-gradient(top,#ff7c25,#ffbb4b);
-background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-linear-gradient(top,#ff7c25,#ffbb4b);background-image:linear-gradient(top,#ff7c25,#ffbb4b); background-repeat: repeat-x; }
+    background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-linear-gradient(top,#ff7c25,#ffbb4b);background-image:linear-gradient(top,#ff7c25,#ffbb4b); background-repeat: repeat-x; }
 .wxhb_home{min-width: 200px;max-width: 500px;height: 100%;margin: auto;position: relative; background:url(../images/wxqhb_top_bg.png) center top no-repeat #ff7c25;background-color:#ffbc4b;background-image:-webkit-linear-gradient(top,#ff7c25,#ffbb4b);
-background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-linear-gradient(top,#ff7c25,#ffbb4b);background-image:linear-gradient(top,#ff7c25,#ffbb4b); background-repeat: repeat-x; overflow:hidden;}
+    background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-linear-gradient(top,#ff7c25,#ffbb4b);background-image:linear-gradient(top,#ff7c25,#ffbb4b); background-repeat: repeat-x; overflow:hidden;}
 .bd{position: relative; width:100%; width:100%;height:auto; min-height:400px;background:url(../images/wxqhb_top_bg.png) center top no-repeat;background-size: 100% 100%; overflow:hidden;}
 .yiyou_btn{ position:relative;width:90%; height:30px; margin:auto; background-color:#e42e2e; border-radius: 18px; margin-top:10px; text-align:center; line-height:30px; color:#ffffff;}
 .help_jc{ position:relative;width:90%; height:100%; margin:auto;}
@@ -76,8 +76,8 @@ background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-l
 .num5{color:#cc0a0a; font-size:0.7em;}
 /*lqbhb.html*/
 .wl_fontone{ width:120px; height:120px; background-image:url(../images/selahb_bz.png); background-size:50% 50%;position:absolute; top:12%; left:12%;background-repeat:no-repeat;}
-<!--open_help.html-->
-.bd_open{}
+/*open_help.html*/
+    .bd_open{}
 .anniu_open{ width:90%; position:absolute; top:82%; left:5%;}
 .anniu_help_open{ width:90%; position:absolute; top:74%;display: -webkit-box; left:5%;}
 .bd_open{position: relative; width:100%; width:100%;height:auto; min-height:400px;background:url(../images/wxqhb4_top_bg.png) center top no-repeat;background-size: 100% 100%; overflow:hidden;}
@@ -88,17 +88,17 @@ background-image:-o-linear-gradient(top,#ff7c25,#ffbb4b); background-image:-ms-l
 
 /*浮层*/
 .tanchukuang{max-width:500px; min-width:200px; margin:auto; position:relative;text-decoration:none;}
-		.zhiyin{width:24px; height:45px; background:url(../images/jiantou.png) top right no-repeat; background-size:70% 70%;  position:relative; float:right; margin-right:5%}
-		.wz_content{ color:#fff; text-align:center; position:relative; clear:both; line-height:22px; text-decoration:none; }
-		.one_wz{ font-size:1em;}
-		.one_wz img{max-width:28px; height:auto; padding-left:3px; padding-right:3px;}
-		.two_wz{ font-size:1em;}
-		.three_wz{ font-size:1em;}
-		.fcbz_6{width:95px; height:95px; background:url(../images/fcbz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:10%;}
-		.fcbz{width:95px; height:95px; background:url(../images/fcbz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:2%;}
-		.two_wz_bl{ font-size:1em; line-height:22px; color:#eab024}
-		.three_wz_bl{ font-size:1em; line-height:22px; color:#eab024}
-		.fcbz_fx{width:202px; height:92px; background:url(../images/friendbz_wz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:1%;}
-		/*have_hd_man*/
-		.fontone_man{ width:140px;position:absolute; top:27%; left:50%; margin-left:-70px; color:#d82c2c; text-align:left}
-		.fonttwo_man{width:150px;position:absolute; top:33%; left:50%; margin-left:-75px; color:#d82c2c;text-align:center; }
+.zhiyin{width:24px; height:45px; background:url(../images/jiantou.png) top right no-repeat; background-size:70% 70%;  position:relative; float:right; margin-right:5%}
+.wz_content{ color:#fff; text-align:center; position:relative; clear:both; line-height:22px; text-decoration:none; }
+.one_wz{ font-size:1em;}
+.one_wz img{max-width:28px; height:auto; padding-left:3px; padding-right:3px;}
+.two_wz{ font-size:1em;}
+.three_wz{ font-size:1em;}
+.fcbz_6{width:95px; height:95px; background:url(../images/fcbz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:10%;}
+.fcbz{width:95px; height:95px; background:url(../images/fcbz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:2%;}
+.two_wz_bl{ font-size:1em; line-height:22px; color:#eab024}
+.three_wz_bl{ font-size:1em; line-height:22px; color:#eab024}
+.fcbz_fx{width:202px; height:92px; background:url(../images/friendbz_wz.png) top center no-repeat; background-size:100% 100%; margin:auto; position:relative; margin-top:1%;}
+/*have_hd_man*/
+.fontone_man{ width:140px;position:absolute; top:27%; left:50%; margin-left:-70px; color:#d82c2c; text-align:left}
+.fonttwo_man{width:150px;position:absolute; top:33%; left:50%; margin-left:-75px; color:#d82c2c;text-align:center; }

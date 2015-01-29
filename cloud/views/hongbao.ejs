@@ -8,16 +8,22 @@
     <meta http-equiv="cache-control" content="no-cache">
     <meta content="telephone=no" name="format-detection"/>
     <link rel="stylesheet" type="text/css" href="css/hongBao.css">
+    <script src="js/angular.min.js"></script>
+    <script>
+        var me = <%- (!!locals.me)?JSON.stringify(me):'undefined'%>;
+        var target = <%- (!!locals.target)?JSON.stringify(target):'undefined'%>;
+    </script>
 </head>
 
-<body>
+<body ng-app="ngQianbao" ng-controller="QianbaoController">
 <section class="wxhb_home">
-    <section class="bd">
+    <section class="bd" id="hongbaoBg">
         <!--          第一次领取红包显示的金额-->
         <section id="lqhbb" style="display:none" name="hide">
             <section class="wl_fontone"></section>
             <section class="fonttwo_lqbhb"><span style=" font-size:4em; ">1000</span><span
-                        style=" font-size:1em; ">元</span></section>
+                        style=" font-size:1em; ">元</span>
+            </section>
         </section>
         <!--           第二次进入红包链接，查看自己的链接-->
         <section id="yy_hb_no" style="display:none" name="hide">
@@ -25,20 +31,21 @@
         </section>
         <!--            打开A的红包头部-->
         <section id="open_hb" style="display:none" name="hide">
-            <section class="fontone1_help">Ralph</section>
+            <section class="fontone1_help" id="targetNickname">Ralph</section>
             <section class="fontone_help">当前红包总额</section>
         </section>
         <!--            查看金额-->
         <section id="money" style="display:none" name="hide">
-            <section class="fonttwo"><span style=" font-size:4em; " id="nowMoney">1000</span><span
-                        style=" font-size:1em; ">元</span></section>
+            <section class="fonttwo"><span style=" font-size:4em; " id="nowMoney">0</span><span
+                        style=" font-size:1em; ">元</span>
+            </section>
         </section>
         <!--            帮朋友以后再次打开朋友的链接-->
         <section id="help_hb" style="display:none" name="hide">
             <section class="anniu_help">
                 <section class="anniu_sy_help" id="helpArea">
                     <section class="wz">距离活动结束还有<span id="leftTime2">1</span>天</section>
-                    <section>您已成功帮好友聚财<span id="helpedMoney">50</span>元！</section>
+                    <section>您已成功帮好友聚财<span id="helpedMoney"></span>元！</section>
                 </section>
             </section>
         </section>
@@ -97,7 +104,7 @@
                 </section>
             </section>
             <section class="anniu_dh_begin">
-                <input class="info" type="tel" placeholder="请输入手机号" title="手机号" name="mobile"
+                <input id="phoneNo" class="info" type="tel" placeholder="请输入手机号" title="手机号" name="mobile"
                        pattern="^1(([38]\d)|(4[57])|(5[012356789])|(7[0678]))\d{8}$" maxlength="11" required/>
             </section>
             <section class="anniu_begin">
@@ -137,18 +144,18 @@
 </section>
 <!--        好友帮助列表-->
 <section id="helplist" style="display:none" name="hide">
-    <section class="yiyou_btn">已有<span id="friendsNum">1</span>位好友帮你聚财</section>
+    <section class="yiyou_btn" id="yiyou_btn">已有<span id="friendsNum">1</span>位好友帮你聚财</section>
     <section class="help_jc" id="frindsList">
         <ul>
-            <li>
-                <section class="apple_bz"></section>
+            <li ng-repeat="support in supports">
+                <section class="apple_bz" style="background-image:url({{support.get('supporter').get('headimgurl')}});"></section>
                 <section class="money_show">
                     <section class="money_name">
-                        <section class="money_name_1">微信号名名<span>10-17  19：00</span>
+                        <section class="money_name_1">{{support.get('supporter').get('nickname')}}<span>10-17  19：00</span>
                         </section>
                         <section class="money_name_2">爱你无限帮聚财</section>
                     </section>
-                    <section class="money_shu">+50</section>
+                    <section class="money_shu">+{{support.get('amount')}}</section>
                 </section>
             </li>
         </ul>
@@ -158,7 +165,8 @@
             <li>
                 <section class="no_money_show">
                     <section class="money_name">
-                        <section class="no_name_1">目前还没有好友帮你聚财，</span></section>
+                        <section class="no_name_1">目前还没有好友帮你聚财，</span>
+                        </section>
                         <section class="no_name_2">赶紧邀请好友聚财让红包变成1000元吧～</section>
                     </section>
                 </section>
@@ -180,8 +188,10 @@
     </div>
 </a>
 <script src="https://leancloud.cn/scripts/lib/av-0.4.6.min.js"></script>
-<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-<script src="./js/hongBao.js"></script>
+<script>
+    AV.initialize("pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i", "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4");
+</script>
+<script src="js/hongbao.js"></script>
 </body>
 
 </html>

@@ -55,10 +55,9 @@ AV.Cloud.define("getHongbaoByCode", function (request, response) {
 
 AV.Cloud.define("createHongbao", function (request, response) {
     // Check if phone exists
-    var phoneNo = request.params.phoneNo;
     var openId = request.params.openId;
-    if (!phoneNo || !openId) {
-        response.error('invalid params,' + phoneNo + ',' + openId);
+    if (!openId) {
+        response.error('invalid params,' + openId);
         return;
     }
 
@@ -68,7 +67,7 @@ AV.Cloud.define("createHongbao", function (request, response) {
         return (hongbao) ?
             AV.Promise.as(hongbao) :
             new Hongbao({
-                phoneNo: phoneNo,
+                //phoneNo: phoneNo,
                 openId: openId,
                 supports: generateSupportSequence()
             }).save();
@@ -108,16 +107,16 @@ AV.Cloud.define("supportHongbao", function (request, response) {
     // TODO Check all params
     // TODO change amount
 
-    // TODO get all supports of this Hongbao
+    // get all supports of this Hongbao
     // TODO check if this user supported the hongbao, if not create a support, or response error
 
     var query = new AV.Query(Support)
     query.equalTo('target', new Hongbao({id: hongbaoId}))
     //query.equalTo('supporter', new Hongbao({id: supporterId}))
-    query.find().then(function (supporters) {
-        if (supporters) {
-            supporters.forEach(function (support) {
-                if (support.id === supporterId) {
+    query.find().then(function (supports) {
+        if (supports) {
+            supports.forEach(function (support) {
+                if (support.get('supporter').id == supporterId) {
                     alreadySupported = true
                 }
             })
@@ -126,23 +125,34 @@ AV.Cloud.define("supportHongbao", function (request, response) {
             } else {
                 new Support({
                     target: new Hongbao({id: hongbaoId}),
-                    supporter: new Hongbao({id: supporterId})
-                }).save().then(function () {
-
+                    supporter: new Hongbao({id: supporterId}),
+                    amount: 123
+                }).save().then(function (support) {
+                        response.success(support)
+                    }, function (err) {
+                        response.error(err)
                     })
             }
         } else {
-
+            new Support({
+                target: new Hongbao({id: hongbaoId}),
+                supporter: new Hongbao({id: supporterId}),
+                amount: 123
+            }).save().then(function (support) {
+                    response.success(support)
+                }, function (err) {
+                    response.error(err)
+                })
         }
     })
 
-    new Support({
-        supporter: new Hongbao({id: supporterId}),
-        target: new Hongbao({id: hongbaoId}),
-        amount: 30
-    }).save().then(function (support) {
-            response.success(support);
-        }, function (err) {
-            response.error(err);
-        })
+    //new Support({
+    //    supporter: new Hongbao({id: supporterId}),
+    //    target: new Hongbao({id: hongbaoId}),
+    //    amount: 30
+    //}).save().then(function (support) {
+    //        response.success(support);
+    //    }, function (err) {
+    //        response.error(err);
+    //    })
 })
