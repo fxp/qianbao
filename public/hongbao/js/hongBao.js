@@ -1,8 +1,13 @@
+AV.initialize("pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i", "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4");
+
 angular.module('ngQianbao', [])
     .controller('QianbaoController', function ($scope) {
         var requestUri = GetRequest();
         var Hongbao = AV.Object.extend("Hongbao");
         var Support = AV.Object.extend("Support");
+
+        var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname
+        window.history.pushState({path: newurl}, '', newurl);
 
         function init() {
             if (typeof me === 'undefined') {
@@ -12,10 +17,10 @@ angular.module('ngQianbao', [])
                 if (typeof me.phoneNo === 'undefined') {
                     changeState('init')
                 } else {
-                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
+                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
                     changeState('mine')
                 }
-            } else if (target.openId === me.openId) {
+            } else if (target.id === me.id) {
                 changeState('mine')
             } else {
                 changeState('others')
@@ -84,7 +89,24 @@ angular.module('ngQianbao', [])
             } else {
                 return false
             }
+        }
 
+
+        $scope.getHongbao = function () {
+            var phoneNo = document.getElementById("phoneNo").value
+            if (checkPhone(phoneNo)) {
+                AV.Cloud.run('updatePhoneNo', {
+                    hongbaoId: me.id,
+                    phoneNo: phoneNo
+                }).then(function (hongbao) {
+                    me = hongbao
+                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
+                    showMyShared()
+                }, function (err) {
+                    alert('failed')
+                })
+                //alertDiv(document.getElementById("alertDiv"));
+            }
         }
 
 //输入手机号页面
@@ -97,22 +119,22 @@ angular.module('ngQianbao', [])
             inputphone.style.display = "block";
             inputphone.firstElementChild.firstElementChild.style.display = "block";
             document.getElementById("intro").style.display = "block";
-            var ling = document.getElementById("btn");//error??
-            ling.onclick = function () {
-                var phoneNo = document.getElementById("phoneNo").value
-                if (checkPhone(phoneNo)) {
-                    AV.Cloud.run('updatePhoneNo', {
-                        hongbaoId: me.objectId,
-                        phoneNo: phoneNo
-                    }).then(function (hongbao) {
-                        window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
-                        showMyShared();
-                    }, function (err) {
-                        alert('failed')
-                    })
-                    //alertDiv(document.getElementById("alertDiv"));
-                }
-            };
+            //var ling = document.getElementById("btn");//error??
+            //ling.onclick = function () {
+            //    var phoneNo = document.getElementById("phoneNo").value
+            //    if (checkPhone(phoneNo)) {
+            //        AV.Cloud.run('updatePhoneNo', {
+            //            hongbaoId: me.objectId,
+            //            phoneNo: phoneNo
+            //        }).then(function (hongbao) {
+            //            window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
+            //            showMyShared();
+            //        }, function (err) {
+            //            alert('failed')
+            //        })
+            //        //alertDiv(document.getElementById("alertDiv"));
+            //    }
+            //}
         }
 
 //分享页
@@ -127,30 +149,49 @@ angular.module('ngQianbao', [])
             document.getElementById("leftTime").innerHTML = checkFinished();
             document.getElementById("frindsList").style.display = "block";
 
-            checkFull("A");
+            refreshSupportList()
+                .then(function (supports) {
+                    if (supports) {
+                        var total = 100
+                        supports.forEach(function (support) {
+                            total += support.get("amount")
+                        })
+                        if (total >= 1000) {
+                            document.getElementById("nowMoney").innerHTML = 1000;
+                            checkFull('A')
+                        } else {
+                            document.getElementById("nowMoney").innerHTML = total;
+                        }
+                    } else {
+                        document.getElementById("nowMoney").innerHTML = total;
+                    }
+                })
 
-            var friendsNum = document.getElementById("friendsNum");
-            var query = new AV.Query(Support);
-            query.equalTo('target', new Hongbao({id: me.objectId}))
-            query.find().then(function (supports) {
-                if (supports.length == 0) {
-                    document.getElementById("frindsList").style.display = "none";
-                    document.getElementById("nohelp").style.display = "block";
-                    var m = document.getElementById("nowMoney");
-                    m.innerHTML = 100;
+            //var friendsNum = document.getElementById("friendsNum");
+            //var query = new AV.Query(Support);
+            //query.equalTo('target', new Hongbao({id: me.objectId}))
+            //query.find().then(function (supports) {
+            //    if (supports.length == 0) {
+            //        document.getElementById("frindsList").style.display = "none";
+            //        document.getElementById("nohelp").style.display = "block";
+            //        var m = document.getElementById("nowMoney");
+            //        m.innerHTML = 100;
+            //
+            //    } else {
+            //        //通过support表查询捐助者名单
+            //        //friendsNum.innerHTML = supports.length
+            //    }
+            //}, function (err) {
+            //    console.log(err)
+            //})
+        }
 
-                } else {
-                    //通过support表查询捐助者名单
-                    //friendsNum.innerHTML = supports.length
-                    refreshSupportList()
-                }
-            }, function (err) {
-                console.log(err)
-            })
+        document.getElementById("inviteFriends").onclick = function () {
+            alertDiv(document.getElementById("alertdiv"));
+        }
 
-            document.getElementById("inviteFriends").onclick = function () {
-                alertDiv(document.getElementById("alertdiv"));
-            }
+        $scope.goInit = function () {
+            location.href = "/hongbao/"
         }
 
 //活动结束页
@@ -203,7 +244,7 @@ angular.module('ngQianbao', [])
             var friendsNum = document.getElementById("friendsNum");
             var query = new AV.Query(Support);
             query.include('supporter')
-            query.equalTo('target', new Hongbao({id: target.objectId}))
+            query.equalTo('target', new Hongbao({id: target.id}))
             query.find().then(function (supports) {
                 friendsNum.innerHTML = supports.length
                 $scope.$apply(function () {
@@ -248,7 +289,7 @@ angular.module('ngQianbao', [])
                         var alreadySupported = true
                         supports.forEach(function (support) {
                             total += support.get('amount')
-                            if (support.get('supporter').id == target.objectId) {
+                            if (support.get('supporter').id == target.id) {
                                 alreadySupported = true
                             }
                             if (alreadySupported) {
@@ -258,6 +299,7 @@ angular.module('ngQianbao', [])
                         })
                         var m = document.getElementById("nowMoney");
                         m.innerHTML = total + 100;
+                        checkFull('B')
                     }
                 }, function (err) {
                     console.log(err)
@@ -266,25 +308,23 @@ angular.module('ngQianbao', [])
 
             var ling = document.getElementById("help_friend");//error??
             ling.onclick = function () {
-                if (typeof me.phoneNo === "undefined") {
-                    // TODO show phoneNo input
-
-                } else {
-                    AV.Cloud.run('supportHongbao', {
-                        targetId: target.objectId,
-                        supporterId: me.objectId
-                    }).then(function (support) {
+                AV.Cloud.run('supportHongbao', {
+                    targetId: target.id,
+                    supporterId: me.id
+                }).then(function (support) {
+                    if (typeof me.phoneNo === "undefined") {
+                        showWelcomeB()
+                    } else {
                         document.getElementById("open_hb_help").style.display = "none";
                         document.getElementById("help_hb").style.display = "block";
                         document.getElementById("helpedMoney").innerHTML = support.amount;
                         // TODO refresh support list
-
                         // TODO refresh supported amount
-                    }, function (err) {
-                        document.getElementById("open_hb_help").style.display = "none";
-                        document.getElementById("help_hb").style.display = "none";
-                    })
-                }
+                    }
+                }, function (err) {
+                    document.getElementById("open_hb_help").style.display = "none";
+                    document.getElementById("help_hb").style.display = "none";
+                })
 //        if (checkPhone()) {
 //            alertDiv(document.getElementById("alertDiv"));
 ////            if(shared())
@@ -307,9 +347,9 @@ angular.module('ngQianbao', [])
             document.getElementById("helpFrindsTips").style.display = "-webkit-box";
             document.getElementById("inputphone").style.display = "block";
             document.getElementById("intro").style.display = "block";
-            if (checkPhone()) {
-                showHelped();
-            }
+            //if (checkPhone()) {
+            //    showHelped();
+            //}
         }
 
 //读取当前的URI

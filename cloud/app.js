@@ -82,6 +82,44 @@ function getHongbaoByOpenid(openId) {
     return query.first()
 }
 
+
+var CONVERT_TABLE = [
+    [10, 20, 30],
+    [40, 50, 60],
+    [70, 80, 90],
+    [80, 100, 100]
+]
+var GOAL_AMOUNT = 1000;
+var MAX_SUPPORT_COUNT = 25;
+var SPECIAL_SUPPORT_AMOUNT = 100;
+function generateSupportSequence() {
+    var supportSequence = [];
+    var firstBlood = Math.floor(Math.random() * 3);
+    var total = 0;
+
+    for (var i = 0; i < MAX_SUPPORT_COUNT; i++) {
+        var newAmount = -1;
+        if (i === firstBlood) {
+            newAmount = SPECIAL_SUPPORT_AMOUNT;
+        } else {
+            var convertLevel = i % 4;
+            convertLevel = (convertLevel >= 2) ? (convertLevel - 2) : (convertLevel + 2)
+            newAmount = CONVERT_TABLE[convertLevel][Math.floor(Math.random() * 3)]
+            if (i < 3 && (newAmount === 100)) {
+                newAmount -= 10;
+            }
+        }
+        total += newAmount
+        if (total >= 1000) {
+            supportSequence.push(newAmount - (total - GOAL_AMOUNT));
+            break;
+        }
+        supportSequence.push(newAmount);
+    }
+    return supportSequence;
+}
+
+
 var Hongbao = AV.Object.extend('Hongbao')
 var Support = AV.Object.extend('Support')
 
@@ -90,13 +128,19 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     var targetHongbaoId = req.params.hongbaoId;
 
     if (req.query.code) {
+        console.log('code:%s', req.query.code)
         // TODO Get pre saved userinfo for this code
         getAccessToken(req.query.code).then(function (token) {
-            return getUserInfo(token.access_token, token.openid)
+            if (token.errcode) {
+                return AV.Promise.error('fetch access token failed')
+            } else {
+                return getUserInfo(token.access_token, token.openid)
+            }
         }).then(function (info) {
+            console.log('userinfo,%s', JSON.stringify(info))
             userInfo = info
             var query = new AV.Query(Hongbao)
-            query.equalTo('openId', userInfo.userid)
+            query.equalTo('openId', userInfo.openid)
             return query.first()
         }).then(function (hongbao) {
             var promises = []
@@ -107,14 +151,12 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                     openId: userInfo.openid,
                     nickname: userInfo.nickname,
                     headimgurl: userInfo.headimgurl,
-                    profile: userInfo
+                    profile: userInfo,
+                    supports: generateSupportSequence()
                 }).save())
             }
             if (targetHongbaoId) {
-                console.log('targetHongbaoId exists')
                 promises.push(new AV.Query(Hongbao).get(targetHongbaoId))
-            } else {
-                console.log('targetHongbaoId not exists')
             }
             //if (targetHongbaoId) {
             //console.log('hoho,%s,%s,%s',
@@ -125,6 +167,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             //}
             return AV.Promise.when(promises)
         }).then(function (me, target) {
+            console.log('me:%s', JSON.stringify(me))
+            console.log('target:%s', JSON.stringify(target))
             res.render('hongbao', {
                 me: me,
                 target: target
@@ -140,33 +184,55 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             //}
         }, function (err) {
             console.log(err)
-            res.status(500).send("failed")
+            res.status(500).send("failed," + JSON.stringify(err))
         })
     } else {
         if (__local) {
             new AV.Query(Hongbao).get(req.params.hongbaoId)
                 .then(function (hongbao) {
+                    console.log('test data')
                     res.render('hongbao', {
                         me: {
+                            "headimgurl": "",
+                            "nickname": "这家伙",
+                            "openId": "oAWh3t_Y023E4iWtc_lHxvOA6tNA",
+                            "profile": {
+                                "sex": 0,
+                                "nickname": "这家伙",
+                                "city": "",
+                                "headimgurl": "",
+                                "openid": "oAWh3t_Y023E4iWtc_lHxvOA6tNA",
+                                "language": "zh_CN",
+                                "province": "",
+                                "country": "",
+                                "privilege": []
+                            },
+                            "id": "54c9d56ae4b06b90a8009149",
                             "phoneNo": "13488892615",
-                            "openId": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
-                            "nickname": "冯小平",
-                            "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
-                            "objectId": "54c9aa01e4b0ab34704d0d32",
-                            "createdAt": "2015-01-27T16:24:19.127Z",
-                            "updatedAt": "2015-01-27T17:56:05.864Z"
+                            "createdAt": "2015-01-29T04:17:50.211Z",
+                            "updatedAt": "2015-01-29T04:17:50.211Z"
                         },
-                        target: undefined
-                        //target: {
-                        //    "phoneNo": "",
-                        //    "openId": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
-                        //    "nickname": "冯小平",
-                        //    "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
-                        //    "amount": 100,
-                        //    "objectId": "54c7bbb3e4b0ae7e69828107",
-                        //    "createdAt": "2015-01-27T16:24:19.127Z",
-                        //    "updatedAt": "2015-01-27T17:56:05.864Z"
-                        //}
+                        //target: undefined
+                        target: {
+                            "phoneNo": "13488892615",
+                            "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
+                            "nickname": "冯小平",
+                            "openId": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
+                            "profile": {
+                                "sex": 1,
+                                "nickname": "冯小平",
+                                "city": "海淀",
+                                "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
+                                "openid": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
+                                "language": "en",
+                                "province": "北京",
+                                "country": "中国",
+                                "privilege": []
+                            },
+                            "id": "54c9d56ae4b06b90a8009149",
+                            "createdAt": "2015-01-29T04:00:13.829Z",
+                            "updatedAt": "2015-01-29T04:00:21.249Z"
+                        }
                     })
                 }, function (err) {
                     res.status(404).send()

@@ -11,7 +11,9 @@
     <script src="js/angular.min.js"></script>
     <script>
         var me = <%- (!!locals.me)?JSON.stringify(me):'undefined'%>;
+        me.id = (me.objectId) ? me.objectId : me.id;
         var target = <%- (!!locals.target)?JSON.stringify(target):'undefined'%>;
+        target.id = (target.objectId) ? target.objectId : target.id;
     </script>
 </head>
 
@@ -63,7 +65,7 @@
         <!--            第一次打开发现红包已经满了-->
         <section id="hb_man" style="display:none" name="hide">
             <section class="anniu_man">
-                <section class="anniu_sy_begins">我也要领红包</section>
+                <section class="anniu_sy_begins" ng-click="goInit()">我也要领红包</section>
             </section>
         </section>
         <!--            查看自己的红包-->
@@ -107,8 +109,8 @@
                 <input id="phoneNo" class="info" type="tel" placeholder="请输入手机号" title="手机号" name="mobile"
                        pattern="^1(([38]\d)|(4[57])|(5[012356789])|(7[0678]))\d{8}$" maxlength="11" required/>
             </section>
-            <section class="anniu_begin">
-                <section class="anniu_sy_begins" id="btn">领红包</section>
+            <section class="anniu_begin" ng-click="getHongbao()">
+                <section class="anniu_sy_begins">领红包</section>
             </section>
         </section>
     </section>
@@ -148,10 +150,12 @@
     <section class="help_jc" id="frindsList">
         <ul>
             <li ng-repeat="support in supports">
-                <section class="apple_bz" style="background-image:url({{support.get('supporter').get('headimgurl')}});"></section>
+                <section class="apple_bz"
+                         style="background-image:url({{support.get('supporter').get('headimgurl')}});"></section>
                 <section class="money_show">
                     <section class="money_name">
-                        <section class="money_name_1">{{support.get('supporter').get('nickname')}}<span>10-17  19：00</span>
+                        <section class="money_name_1">
+                            {{support.get('supporter').get('nickname')}}<span>10-17  19：00</span>
                         </section>
                         <section class="money_name_2">爱你无限帮聚财</section>
                     </section>
@@ -189,7 +193,6 @@
 </a>
 <script src="https://leancloud.cn/scripts/lib/av-0.4.6.min.js"></script>
 <script>
-    AV.initialize("pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i", "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4");
 </script>
 <script src="js/hongbao.js"></script>
 </body>

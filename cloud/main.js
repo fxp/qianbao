@@ -101,7 +101,7 @@ AV.Cloud.define("updatePhoneNo", function (request, response) {
 
 AV.Cloud.define("supportHongbao", function (request, response) {
     var supporterId = request.params.supporterId,
-        hongbaoId = request.params.targetId,
+        targetId = request.params.targetId,
         alreadySupported = false;
 
     // TODO Check all params
@@ -109,11 +109,11 @@ AV.Cloud.define("supportHongbao", function (request, response) {
 
     // get all supports of this Hongbao
     // TODO check if this user supported the hongbao, if not create a support, or response error
-
     var query = new AV.Query(Support)
-    query.equalTo('target', new Hongbao({id: hongbaoId}))
-    //query.equalTo('supporter', new Hongbao({id: supporterId}))
-    query.find().then(function (supports) {
+    query.equalTo('target', new Hongbao({id: targetId}))
+    AV.Promise.when([
+        new AV.Query(Hongbao).get(targetId), query.find()
+    ]).then(function (target, supports) {
         if (supports) {
             supports.forEach(function (support) {
                 if (support.get('supporter').id == supporterId) {
@@ -124,9 +124,9 @@ AV.Cloud.define("supportHongbao", function (request, response) {
                 response.error('already supported')
             } else {
                 new Support({
-                    target: new Hongbao({id: hongbaoId}),
+                    target: new Hongbao({id: targetId}),
                     supporter: new Hongbao({id: supporterId}),
-                    amount: 123
+                    amount: target.get('supports')[supports.length]
                 }).save().then(function (support) {
                         response.success(support)
                     }, function (err) {
@@ -135,9 +135,9 @@ AV.Cloud.define("supportHongbao", function (request, response) {
             }
         } else {
             new Support({
-                target: new Hongbao({id: hongbaoId}),
+                target: new Hongbao({id: targetId}),
                 supporter: new Hongbao({id: supporterId}),
-                amount: 123
+                amount: target.get('supports')[supports.length]
             }).save().then(function (support) {
                     response.success(support)
                 }, function (err) {
