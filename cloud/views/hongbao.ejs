@@ -106,11 +106,12 @@
                 </section>
             </section>
             <section class="anniu_dh_begin">
-                <input id="phoneNo" class="info" type="tel" placeholder="请输入手机号" title="手机号" name="mobile"
+                <input onfocus="resetGetHongbaoBtn()" id="phoneNo" class="info" type="tel" placeholder="请输入手机号"
+                       title="手机号" name="mobile"
                        pattern="^1(([38]\d)|(4[57])|(5[012356789])|(7[0678]))\d{8}$" maxlength="11" required/>
             </section>
-            <section class="anniu_begin" ng-click="getHongbao()">
-                <section class="anniu_sy_begins">领红包</section>
+            <section class="anniu_begin" ng-click="getHongbao()" onfocus="resetGetHongbaoBtn()">
+                <section class="anniu_sy_begins" id="getHongbaoBtn">领红包</section>
             </section>
         </section>
     </section>

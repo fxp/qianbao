@@ -24,6 +24,21 @@ function getOAuthUrl(hongbaoId) {
     })
     return authUrl
 }
+function daysBetween(first, second) {
+
+    // Copy date parts of the timestamps, discarding the time parts.
+    var one = new Date(first.getFullYear(), first.getMonth(), first.getDate());
+    var two = new Date(second.getFullYear(), second.getMonth(), second.getDate());
+
+    // Do the math.
+    var millisecondsPerDay = 1000 * 60 * 60 * 24;
+    var millisBetween = two.getTime() - one.getTime();
+    var days = millisBetween / millisecondsPerDay;
+
+    // Round down.
+    return Math.floor(days);
+}
+console.log('b,%s', daysBetween(new Date(), new Date(2015, 0, 1)))
 
 function getAccessToken(code) {
     var deferred = new AV.Promise()
@@ -128,12 +143,14 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     var userInfo;
     var targetHongbaoId = req.params.hongbaoId;
 
+    console.log('hongbao request,%s,%s', JSON.stringify(req.params),JSON.stringify(req.query))
+
     if (req.query.code) {
         console.log('code:%s', req.query.code)
         // TODO Get pre saved userinfo for this code
         getAccessToken(req.query.code).then(function (token) {
             if (token.errcode) {
-                return AV.Promise.error('fetch access token failed')
+                return AV.Promise.error('fetch access token failed,' + JSON.stringify(token))
             } else {
                 return getUserInfo(token.access_token, token.openid)
             }
@@ -177,47 +194,11 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
         if (__local) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
-                    console.log('test data')
-                    var me = {
-                            "headimgurl": "",
-                            "nickname": "这家伙",
-                            "openId": "oAWh3t_Y023E4iWtc_lHxvOA6tNA",
-                            "profile": {
-                                "sex": 0,
-                                "nickname": "这家伙",
-                                "city": "",
-                                "headimgurl": "",
-                                "openid": "oAWh3t_Y023E4iWtc_lHxvOA6tNA",
-                                "language": "zh_CN",
-                                "province": "",
-                                "country": "",
-                                "privilege": []
-                            },
-                            "id": "54cac407e4b07d30f25a907b",
-                            "phoneNo": "13488892615",
-                            "createdAt": "2015-01-29T04:17:50.211Z",
-                            "updatedAt": "2015-01-29T04:17:50.211Z"
-                        },
-                        target = {
-                            "phoneNo": "13488892615",
-                            "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
-                            "nickname": "冯小平",
-                            "openId": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
-                            "profile": {
-                                "sex": 1,
-                                "nickname": "冯小平",
-                                "city": "海淀",
-                                "headimgurl": "http://wx.qlogo.cn/mmopen/zLXB5r0QMUuDzCAdic2gZCpeugbAYZN2j8icM2TibtA8oib7PoaF0cECgVGVou3xziavwS9WoWosAoGZZ3pbYghnohuTJicpap0ZmT/0",
-                                "openid": "oAWh3tx8QWRqxsSi7K5Pj-79Tlw8",
-                                "language": "en",
-                                "province": "北京",
-                                "country": "中国",
-                                "privilege": []
-                            },
-                            "id": "54cac407e4b07d30f25a907b",
-                            "createdAt": "2015-01-29T04:00:13.829Z",
-                            "updatedAt": "2015-01-29T04:00:21.249Z"
-                        };
+                    return AV.Promise.when([
+                        new AV.Query(Hongbao).get('54cb14ede4b0ae654da6daeb'),
+                        new AV.Query(Hongbao).get('54cb0e55e4b088130d1169bd')
+                    ])
+                }).then(function (me, target) {
                     res.render('hongbao', {
                         me: me,
                         //target: undefined
@@ -227,6 +208,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                     res.status(404).send('hongbao not exists,%s', targetHongbaoId)
                 })
         } else {
+            console.log('start auth')
             res.redirect(getOAuthUrl(targetHongbaoId))
         }
 

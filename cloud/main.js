@@ -87,15 +87,25 @@ AV.Cloud.define("updatePhoneNo", function (request, response) {
     var phoneNo = request.params.phoneNo,
         hongbaoId = request.params.hongbaoId;
 
-    new AV.Query(Hongbao).get(hongbaoId)
-        .then(function (hongbao) {
+    var phoneNoQuery = new AV.Query(Hongbao);
+    phoneNoQuery.equalTo('phoneNo', phoneNo);
+
+    AV.Promise.when([
+        phoneNoQuery.first(),
+        new AV.Query(Hongbao).get(hongbaoId)
+    ]).then(function (existsHongbao, hongbao) {
+        console.log('exists,%s', JSON.stringify(existsHongbao))
+        if (existsHongbao) {
+            return AV.Promise.error('phone number already exists')
+        } else {
             hongbao.set('phoneNo', phoneNo)
             return hongbao.save()
-        }).then(function (hongbao) {
-            response.success(hongbao)
-        }, function (err) {
-            response.error(err)
-        })
+        }
+    }).then(function (hongbao) {
+        response.success(hongbao)
+    }, function (err) {
+        response.error(err)
+    })
 
 })
 
