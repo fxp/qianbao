@@ -143,7 +143,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     var userInfo;
     var targetHongbaoId = req.params.hongbaoId;
 
-    console.log('hongbao request,%s,%s', JSON.stringify(req.params),JSON.stringify(req.query))
+    console.log('hongbao request,%s,%s,%s', targetHongbaoId, JSON.stringify(req.params), JSON.stringify(req.query))
 
     if (req.query.code) {
         console.log('code:%s', req.query.code)
@@ -195,8 +195,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54cb14ede4b0ae654da6daeb'),
-                        new AV.Query(Hongbao).get('54cb0e55e4b088130d1169bd')
+                        new AV.Query(Hongbao).get('54cb7c79e4b042aefb47c07c'),
+                        new AV.Query(Hongbao).get('54cb7c79e4b042aefb47c07c')
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {

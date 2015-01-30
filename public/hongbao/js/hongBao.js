@@ -148,10 +148,10 @@ angular.module('ngQianbao', [])
                     changeState('init')
                 } else {
                     // I have set my number, so jump to target url
-                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
+                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
                     changeState('mine')
                 }
-            } else if (target.id === me.id) {
+            } else if (target.objectId === me.objectId) {
                 changeState('mine')
             } else {
                 changeState('others')
@@ -209,12 +209,12 @@ angular.module('ngQianbao', [])
             var phoneNo = document.getElementById("phoneNo").value
             if (checkPhone(phoneNo)) {
                 AV.Cloud.run('updatePhoneNo', {
-                    hongbaoId: me.id,
+                    hongbaoId: me.objectId,
                     phoneNo: phoneNo
                 }).then(function (hongbao) {
                     me = hongbao
                     target = hongbao
-                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
+                    window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
                     showMyShared()
                     alertDiv(document.getElementById("alertdiv"));
                 }, function (err) {
@@ -382,7 +382,7 @@ angular.module('ngQianbao', [])
             document.getElementById("open_hb_help").style.display = "block";
             document.getElementById("targetNickname").innerHTML = target.nickname
 
-            function refresh(){
+            function refresh() {
                 refreshSupportList()
                     .then(function (supports) {
                         if (supports.length == 0) {
@@ -397,7 +397,7 @@ angular.module('ngQianbao', [])
                             var alreadySupported = true
                             supports.forEach(function (support) {
                                 total += support.get('amount')
-                                if (support.get('supporter').id == target.id) {
+                                if (support.get('supporter').objectId == target.objectId) {
                                     alreadySupported = true
                                 }
                                 if (alreadySupported) {
@@ -413,13 +413,14 @@ angular.module('ngQianbao', [])
                         console.log(err)
                     })
             }
+
             refresh()
 
             var ling = document.getElementById("help_friend");//error??
             ling.onclick = function () {
                 AV.Cloud.run('supportHongbao', {
-                    targetId: target.id,
-                    supporterId: me.id
+                    targetId: target.objectId,
+                    supporterId: me.objectId
                 }).then(function (support) {
                     if (typeof me.phoneNo === "undefined") {
                         showWelcomeB()
@@ -435,11 +436,6 @@ angular.module('ngQianbao', [])
                     document.getElementById("open_hb_help").style.display = "none";
                     document.getElementById("help_hb").style.display = "none";
                 })
-//        if (checkPhone()) {
-//            alertDiv(document.getElementById("alertDiv"));
-////            if(shared())
-//            showMyShared();
-//        }
             };
         }
 
