@@ -16,6 +16,93 @@ function initView() {
     }
 }
 
+/////////////////////////// OTHER
+//todo 用户点击使用钱的按钮
+
+// 此处为用户不分享给好友的处理方式
+document.getElementById("close").onclick = function () {
+    closeDiv();
+}
+function closeDiv() { //关闭弹出框
+    startMove(document.getElementById("alertdiv"), 0);
+}
+
+function alertDiv(obj) {
+    var w = document.createElement("div");
+    w.setAttribute("id", "mybody"); //创建透明背景层(mybody)
+    with (w.style) {
+        position = 'absolute';
+        zIndex = '10000';
+        left = '0';
+        top = '0';
+        background = '#000000';
+        filter = 'Alpha(opacity=50)';
+        opacity = '0.5';
+    }
+    document.body.appendChild(w);
+    w.onclick = closeDiv;
+    if (!obj) return false;
+    obj.style.display = "block";
+    startMove(obj, 300);
+    with (obj.style) { // 设置 弹出框一些基本属性
+        position = 'absolute';
+        zIndex = '10001';
+        left = "50%";
+    }
+};
+var t = [];
+
+function startMove(obj, iTarget) { //运动
+    if (obj.t) {
+        clearInterval(obj.t);
+        obj.t = null;
+    }
+    obj.t = setInterval(function () {
+        doMove(obj, iTarget)
+    }, 30);
+};
+var iSpeed = 0;
+
+function doMove(obj, iTarget) {
+    iSpeed = (iTarget - obj.offsetHeight) / 5;
+    iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed); //速度取整
+    if (obj.offsetHeight == iTarget) { // 目标点结束
+        if (obj.t) {
+            clearInterval(obj.t);
+            obj.t = null;
+            if (iTarget == 0) {
+                obj.style.display = "none";
+                document.body.removeChild(document.getElementById("mybody")); //删除节点
+            }
+        }
+    } else {
+        obj.style.height = obj.offsetHeight + iSpeed + "px";
+    }
+
+    onResize(obj); //调整弹出框位置
+};
+function onResize(obj) {
+    if (!obj) return;
+    var _bg = document.getElementById("mybody");
+    var size = {width: 0, height: 0};
+    size.width = Math.max(document.documentElement.scrollWidth, document.documentElement.clientWidth || document.body.clientWidth) + "px";
+    size.height = Math.max(document.documentElement.scrollHeight, document.documentElement.clientHeight || document.body.clientHeight) + "px";
+    //获取页面高度 和 宽度 最大值
+    if (!_bg) return;
+    _bg.style.width = size.width;
+    _bg.style.height = size.height;
+
+    with (obj.style) { //调整弹出框位置
+        left = (parseInt(document.documentElement.clientWidth || document.body.clientWidth)) / 2 + (document.documentElement.scrollLeft || document.body.scrollLeft) - obj.offsetWidth / 2 + "px";
+        ;
+        top = (parseInt(document.documentElement.clientHeight || document.body.clientHeight)) / 2 + (document.documentElement.scrollTop || document.body.scrollTop) - obj.offsetHeight / 2 + "px";
+    }
+}
+
+window.onresize = function () {
+    //窗口发生改变，触发onResize函数 调整弹出框
+    onResize(document.getElementById("alertdiv"));
+};
 
 angular.module('ngQianbao', [])
     .controller('QianbaoController', function ($scope) {
@@ -96,7 +183,6 @@ angular.module('ngQianbao', [])
             }
         }
 
-
         $scope.getHongbao = function () {
             var phoneNo = document.getElementById("phoneNo").value
             if (checkPhone(phoneNo)) {
@@ -105,6 +191,7 @@ angular.module('ngQianbao', [])
                     phoneNo: phoneNo
                 }).then(function (hongbao) {
                     me = hongbao
+                    target = hongbao
                     window.history.replaceState('Object', 'Title', '/hongbao/' + me.id);
                     showMyShared()
                 }, function (err) {
@@ -124,22 +211,6 @@ angular.module('ngQianbao', [])
             inputphone.style.display = "block";
             inputphone.firstElementChild.firstElementChild.style.display = "block";
             document.getElementById("intro").style.display = "block";
-            //var ling = document.getElementById("btn");//error??
-            //ling.onclick = function () {
-            //    var phoneNo = document.getElementById("phoneNo").value
-            //    if (checkPhone(phoneNo)) {
-            //        AV.Cloud.run('updatePhoneNo', {
-            //            hongbaoId: me.objectId,
-            //            phoneNo: phoneNo
-            //        }).then(function (hongbao) {
-            //            window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
-            //            showMyShared();
-            //        }, function (err) {
-            //            alert('failed')
-            //        })
-            //        //alertDiv(document.getElementById("alertDiv"));
-            //    }
-            //}
         }
 
 //分享页
@@ -156,13 +227,14 @@ angular.module('ngQianbao', [])
 
             refreshSupportList()
                 .then(function (supports) {
+                    var total = 100
                     if (supports) {
-                        var total = 100
                         supports.forEach(function (support) {
                             total += support.get("amount")
                         })
                         if (total >= 1000) {
                             document.getElementById("nowMoney").innerHTML = 1000;
+                            alert('check full');
                             checkFull('A')
                         } else {
                             document.getElementById("nowMoney").innerHTML = total;
@@ -247,10 +319,14 @@ angular.module('ngQianbao', [])
         function refreshSupportList() {
             var deferred = new AV.Promise()
             var friendsNum = document.getElementById("friendsNum");
+
+            alert('query,' + JSON.stringify(target));
+
             var query = new AV.Query(Support);
             query.include('supporter')
             query.equalTo('target', new Hongbao({id: target.id}))
             query.find().then(function (supports) {
+                alert('got it!' + supports);
                 friendsNum.innerHTML = supports.length
                 $scope.$apply(function () {
                     $scope.supports = supports
@@ -372,93 +448,6 @@ angular.module('ngQianbao', [])
             return theRequest;
         }
 
-/////////////////////////// OTHER
-//todo 用户点击使用钱的按钮
-
-// 此处为用户不分享给好友的处理方式
-        document.getElementById("close").onclick = function () {
-            closeDiv();
-        }
-        function closeDiv() { //关闭弹出框
-            startMove(document.getElementById("alertdiv"), 0);
-        }
-
-        function alertDiv(obj) {
-            var w = document.createElement("div");
-            w.setAttribute("id", "mybody"); //创建透明背景层(mybody)
-            with (w.style) {
-                position = 'absolute';
-                zIndex = '10000';
-                left = '0';
-                top = '0';
-                background = '#000000';
-                filter = 'Alpha(opacity=50)';
-                opacity = '0.5';
-            }
-            document.body.appendChild(w);
-            w.onclick = closeDiv;
-            if (!obj) return false;
-            obj.style.display = "block";
-            startMove(obj, 300);
-            with (obj.style) { // 设置 弹出框一些基本属性
-                position = 'absolute';
-                zIndex = '10001';
-                left = "50%";
-            }
-        };
-        var t = [];
-
-        function startMove(obj, iTarget) { //运动
-            if (obj.t) {
-                clearInterval(obj.t);
-                obj.t = null;
-            }
-            obj.t = setInterval(function () {
-                doMove(obj, iTarget)
-            }, 30);
-        };
-        var iSpeed = 0;
-
-        function doMove(obj, iTarget) {
-            iSpeed = (iTarget - obj.offsetHeight) / 5;
-            iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed); //速度取整
-            if (obj.offsetHeight == iTarget) { // 目标点结束
-                if (obj.t) {
-                    clearInterval(obj.t);
-                    obj.t = null;
-                    if (iTarget == 0) {
-                        obj.style.display = "none";
-                        document.body.removeChild(document.getElementById("mybody")); //删除节点
-                    }
-                }
-            } else {
-                obj.style.height = obj.offsetHeight + iSpeed + "px";
-            }
-
-            onResize(obj); //调整弹出框位置
-        };
-        function onResize(obj) {
-            if (!obj) return;
-            var _bg = document.getElementById("mybody");
-            var size = {width: 0, height: 0};
-            size.width = Math.max(document.documentElement.scrollWidth, document.documentElement.clientWidth || document.body.clientWidth) + "px";
-            size.height = Math.max(document.documentElement.scrollHeight, document.documentElement.clientHeight || document.body.clientHeight) + "px";
-            //获取页面高度 和 宽度 最大值
-            if (!_bg) return;
-            _bg.style.width = size.width;
-            _bg.style.height = size.height;
-
-            with (obj.style) { //调整弹出框位置
-                left = (parseInt(document.documentElement.clientWidth || document.body.clientWidth)) / 2 + (document.documentElement.scrollLeft || document.body.scrollLeft) - obj.offsetWidth / 2 + "px";
-                ;
-                top = (parseInt(document.documentElement.clientHeight || document.body.clientHeight)) / 2 + (document.documentElement.scrollTop || document.body.scrollTop) - obj.offsetHeight / 2 + "px";
-            }
-        }
-
-        window.onresize = function () {
-            //窗口发生改变，触发onResize函数 调整弹出框
-            onResize(document.getElementById("alertdiv"));
-        };
         init();
     })
 

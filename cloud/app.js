@@ -158,14 +158,9 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             }
             if (targetHongbaoId) {
                 promises.push(new AV.Query(Hongbao).get(targetHongbaoId))
+            } else {
+                promises.push(AV.Promise.as(hongbao))
             }
-            //if (targetHongbaoId) {
-            //console.log('hoho,%s,%s,%s',
-            //    (targetHongbaoId),
-            //    JSON.stringify(req.params),
-            //    (typeof targetHongbaoId == 'undefined'))
-            //console.log('targetHongbaoId,' + targetHongbaoId)
-            //}
             return AV.Promise.when(promises)
         }).then(function (me, target) {
             console.log('me:%s', JSON.stringify(me))
@@ -173,16 +168,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             res.render('hongbao', {
                 me: me,
                 target: target
-                //me: JSON.stringify(me.toJSON()),
-                //target: JSON.stringify(target.toJSON())
             })
-            //if (hongbao.get('phoneNo')) {
-            //    res.render('hongbao_23', {
-            //        hongbao: hongbao.toJSON()
-            //    })
-            //} else {
-            //    res.render('hongbao_1', {hongbao: hongbao.toJSON()})
-            //}
         }, function (err) {
             console.log(err)
             res.status(500).send("failed," + JSON.stringify(err))
@@ -207,7 +193,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                                 "country": "",
                                 "privilege": []
                             },
-                            "id": "54c9d7a1e4b0c6c6afb793e2",
+                            "id": "54cac407e4b07d30f25a907b",
                             "phoneNo": "13488892615",
                             "createdAt": "2015-01-29T04:17:50.211Z",
                             "updatedAt": "2015-01-29T04:17:50.211Z"
@@ -228,12 +214,10 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                                 "country": "中国",
                                 "privilege": []
                             },
-                            "id": "54c9d7a1e4b0c6c6afb793e2",
+                            "id": "54cac407e4b07d30f25a907b",
                             "createdAt": "2015-01-29T04:00:13.829Z",
                             "updatedAt": "2015-01-29T04:00:21.249Z"
                         };
-                    me.id = (me.objectId) ? me.objectId : me.id;
-                    target.id = (target.objectId) ? target.objectId : target.id;
                     res.render('hongbao', {
                         me: me,
                         //target: undefined
