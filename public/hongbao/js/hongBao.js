@@ -446,6 +446,22 @@ angular.module('ngQianbao', [])
             return deferred
         }
 
+        function getSupportList(user) {
+            var deferred = new AV.Promise()
+            var query = new AV.Query(Support);
+            query.include('supporter');
+            query.equalTo('target', new Hongbao({id: user.objectId}));
+            query.descending('createdAt');
+            query.find().then(function (supports) {
+                deferred.resolve(supports)
+            }, function (err) {
+                console.log(err)
+                deferred.reject(err)
+            })
+            return deferred
+        }
+
+
         //帮助页
         function showHelped() {
             initView();
@@ -508,6 +524,14 @@ angular.module('ngQianbao', [])
                             } else if ((total < 900) && alreadySupported) {
                                 document.getElementById("hongbaoBgLite").style.display = "block";
                                 document.getElementById("hongbaoBg").style.display = "none";
+                                getSupportList(me).then(function (supports) {
+                                    var total = 0;
+                                    supports.forEach(function (s) {
+                                        total += s.get('amount')
+                                    })
+                                    document.getElementById("myTotal").innerHTML = total + 100;
+                                })
+
                             } else if (alreadySupported) {
                                 document.getElementById("open_hb_help").style.display = "none";
                                 document.getElementById("hb_man").style.display = 'none';
