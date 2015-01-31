@@ -19,12 +19,10 @@ function initView() {
 /////////////////////////// OTHER
 //todo 用户点击使用钱的按钮
 
-// 此处为用户不分享给好友的处理方式
-document.getElementById("close").onclick = function () {
-    closeDiv();
-}
 function closeDiv() { //关闭弹出框
     startMove(document.getElementById("alertdiv"), 0);
+    startMove(document.getElementById("alertdiv2"), 0);
+    startMove(document.getElementById("alertdiv3"), 0);
 }
 
 function alertDiv(obj) {
@@ -43,7 +41,7 @@ function alertDiv(obj) {
     w.onclick = closeDiv;
     if (!obj) return false;
     obj.style.display = "block";
-    startMove(obj, 300);
+    startMove(obj, 500);
     with (obj.style) { // 设置 弹出框一些基本属性
         position = 'absolute';
         zIndex = '10001';
@@ -94,8 +92,8 @@ function onResize(obj) {
 
     with (obj.style) { //调整弹出框位置
         left = (parseInt(document.documentElement.clientWidth || document.body.clientWidth)) / 2 + (document.documentElement.scrollLeft || document.body.scrollLeft) - obj.offsetWidth / 2 + "px";
-        ;
-        top = (parseInt(document.documentElement.clientHeight || document.body.clientHeight)) / 2 + (document.documentElement.scrollTop || document.body.scrollTop) - obj.offsetHeight / 2 + "px";
+        //top = (parseInt(document.documentElement.clientHeight || document.body.clientHeight)) / 2 + (document.documentElement.scrollTop || document.body.scrollTop) - obj.offsetHeight / 2 + "px";
+        top = 0
     }
 }
 
@@ -133,25 +131,32 @@ angular.module('ngQianbao', [])
             window.history.pushState({path: cleanUrl}, '', cleanUrl);
         }
 
+        $scope.closeAlert = function () {
+            closeDiv();
+        }
+
         function init() {
+            clearUrl()
             var leftDays = daysBetween(new Date(), new Date(2015, 1, 26));
             document.getElementById('leftTime2').innerHTML = leftDays;
             document.getElementById('leftTime').innerHTML = leftDays;
-            clearUrl()
             if (typeof me === 'undefined') {
                 // TODO
                 alert('Internal error, should not be here')
             } else if (typeof target === 'undefined') {
                 // Seed users
-                if (typeof me.phoneNo === 'undefined') {
+                alert('phoneNo,' + me.phoneNo)
+                if ((typeof me.phoneNo === 'undefined') || ("" == me.phoneNo)) {
                     // I have no phone number set
                     changeState('init')
                 } else {
                     // I have set my number, so jump to target url
                     window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
+                    target = me
                     changeState('mine')
                 }
             } else if (target.objectId === me.objectId) {
+                window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
                 changeState('mine')
             } else {
                 changeState('others')
@@ -162,7 +167,6 @@ angular.module('ngQianbao', [])
             return {
                 showWelcome: function () {
                     console.log('welcome')
-                    initView()
                     showWelcome()
                 },
                 showMine: function () {
@@ -216,7 +220,11 @@ angular.module('ngQianbao', [])
                     target = hongbao
                     window.history.replaceState('Object', 'Title', '/hongbao/' + me.objectId);
                     showMyShared()
-                    alertDiv(document.getElementById("alertdiv"));
+                    if ($scope.supportAmount) {
+                        alertDiv(document.getElementById("alertdiv3"));
+                    } else {
+                        alertDiv(document.getElementById("alertdiv3"));
+                    }
                 }, function (err) {
                     document.getElementById('getHongbaoBtn').innerHTML = "此号码已参加活动"
                 })
@@ -243,6 +251,8 @@ angular.module('ngQianbao', [])
         function showMyShared(res) {
             initView();
 
+            document.title = "零钱包送每人1000元红包啦，大家帮我来聚财，你也能领钱哈！";
+
             document.getElementById("yy_hb_no").style.display = "block";
             document.getElementById("money").style.display = "block";
             document.getElementById("dayTips").style.display = "-webkit-box";
@@ -254,39 +264,21 @@ angular.module('ngQianbao', [])
             refreshSupportList()
                 .then(function (supports) {
                     var total = 100
-                    if (supports) {
+                    if (supports.length > 0) {
                         supports.forEach(function (support) {
                             total += support.get("amount")
                         })
                         if (total >= 1000) {
                             document.getElementById("nowMoney").innerHTML = 1000;
-                            alert('check full');
                             checkFull('A')
                         } else {
                             document.getElementById("nowMoney").innerHTML = total;
                         }
                     } else {
+                        document.getElementById("nohelp").style.display = "block";
                         document.getElementById("nowMoney").innerHTML = total;
                     }
                 })
-
-            //var friendsNum = document.getElementById("friendsNum");
-            //var query = new AV.Query(Support);
-            //query.equalTo('target', new Hongbao({id: me.objectId}))
-            //query.find().then(function (supports) {
-            //    if (supports.length == 0) {
-            //        document.getElementById("frindsList").style.display = "none";
-            //        document.getElementById("nohelp").style.display = "block";
-            //        var m = document.getElementById("nowMoney");
-            //        m.innerHTML = 100;
-            //
-            //    } else {
-            //        //通过support表查询捐助者名单
-            //        //friendsNum.innerHTML = supports.length
-            //    }
-            //}, function (err) {
-            //    console.log(err)
-            //})
         }
 
         document.getElementById("inviteFriends").onclick = function () {
@@ -294,7 +286,10 @@ angular.module('ngQianbao', [])
         }
 
         $scope.goInit = function () {
-            location.href = "/hongbao/"
+            //location.href = "/hongbao/"
+
+            alertDiv(document.getElementById("alertdiv2"));
+            showWelcome()
         }
 
 //活动结束页
@@ -331,7 +326,7 @@ angular.module('ngQianbao', [])
             } else {
                 t = document.getElementById("open_hb").lastElementChild;
                 document.getElementById("open_hb_help").style.display = "none";
-                document.getElementById("hb_man").style.display = "block";
+                //document.getElementById("hb_man").style.display = "block";
                 if (parseInt(m.innerHTML) == 1000) {
                     t.innerHTML = "已获得满额红包";
                     t.className = "fontone_help_man";
@@ -342,6 +337,13 @@ angular.module('ngQianbao', [])
             }
         }
 
+        var SUPPORT_DESC = [
+            "新年贺喜帮聚财",
+            "多年密友帮聚财",
+            "爱你无限帮聚财",
+            "命中财神帮聚财"
+        ]
+
         function refreshSupportList() {
             var deferred = new AV.Promise()
             var friendsNum = document.getElementById("friendsNum");
@@ -351,6 +353,18 @@ angular.module('ngQianbao', [])
             query.equalTo('target', new Hongbao({id: target.objectId}))
             query.find().then(function (supports) {
                 friendsNum.innerHTML = supports.length
+                supports.forEach(function (s) {
+                    var amount = support.get('amount');
+                    if (amount < 40) {
+                        s.set('desc', SUPPORT_DESC[0]);
+                    } else if (amount < 70) {
+                        s.set('desc', SUPPORT_DESC[1]);
+                    } else if (amount < 100) {
+                        s.set('desc', SUPPORT_DESC[2]);
+                    } else {
+                        s.set('desc', SUPPORT_DESC[3]);
+                    }
+                })
                 $scope.$apply(function () {
                     $scope.supports = supports
                 })
@@ -365,6 +379,13 @@ angular.module('ngQianbao', [])
         //帮助页
         function showHelped() {
             initView();
+
+            if (me.phoneNo) {
+                document.title = "零钱包送每人1000元红包啦，大家帮我来聚财，你也能领钱哈！";
+            } else {
+                document.title = "已领红包邀请指定好友聚财文案：零钱包送1000元红包，戳这里帮我聚聚财，你也能领钱哈！"
+            }
+
             document.getElementById("open_hb").style.display = "block";
             var money = document.getElementById("money");
             money.style.display = "block";
@@ -393,16 +414,17 @@ angular.module('ngQianbao', [])
                             document.getElementById("frindsList").style.display = "block";
                             document.getElementById("nohelp").style.display = "none";
 
-                            var total = 0
-                            var alreadySupported = true
+                            var total = 0;
+                            var alreadySupported = false;
                             supports.forEach(function (support) {
                                 total += support.get('amount')
-                                if (support.get('supporter').objectId == target.objectId) {
+                                if (support.get('supporter').id == me.id) {
                                     alreadySupported = true
+                                    $scope.supportAmount = support.get('amount')
                                 }
                                 if (alreadySupported) {
                                     document.getElementById("open_hb_help").style.display = "none";
-                                    document.getElementById("help_hb").style.display = "none";
+                                    document.getElementById("help_hb").style.display = "block";
                                 }
                             })
                             var m = document.getElementById("nowMoney");
@@ -410,7 +432,7 @@ angular.module('ngQianbao', [])
                             checkFull('B')
                         }
                     }, function (err) {
-                        console.log(err)
+                        alert(err)
                     })
             }
 
@@ -418,24 +440,34 @@ angular.module('ngQianbao', [])
 
             var ling = document.getElementById("help_friend");//error??
             ling.onclick = function () {
-                AV.Cloud.run('supportHongbao', {
-                    targetId: target.objectId,
-                    supporterId: me.objectId
-                }).then(function (support) {
-                    if (typeof me.phoneNo === "undefined") {
-                        showWelcomeB()
-                    } else {
-                        //document.getElementById("open_hb_help").style.display = "none";
-                        //document.getElementById("help_hb").style.display = "block";
-                        //document.getElementById("helpedMoney").innerHTML = support.amount;
-                        // TODO refresh support list
-                        // TODO refresh supported amount
-                        refresh()
-                    }
-                }, function (err) {
-                    document.getElementById("open_hb_help").style.display = "none";
-                    document.getElementById("help_hb").style.display = "none";
-                })
+                if ((typeof target === 'undefined') ||
+                    (typeof me === 'undefined') ||
+                    (typeof target.objectId === 'undefined') ||
+                    (typeof me.objectId === 'undefined')) {
+                    alert('unexpected wrong id')
+                } else {
+                    AV.Cloud.run('supportHongbao', {
+                        targetId: target.objectId,
+                        supporterId: me.objectId
+                    }).then(function (support) {
+                        if (support.get) {
+                            $scope.supportAmount = support.get('amount');
+                        } else {
+                            $scope.supportAmount = support.amount;
+                        }
+                        if (typeof me.phoneNo === "undefined") {
+                            showWelcomeB()
+                        } else {
+                            //document.getElementById("open_hb_help").style.display = "none";
+                            //document.getElementById("help_hb").style.display = "block";
+                            //document.getElementById("helpedMoney").innerHTML = support.amount;
+                            refresh()
+                        }
+                    }, function (err) {
+                        document.getElementById("open_hb_help").style.display = "none";
+                        document.getElementById("help_hb").style.display = "none";
+                    })
+                }
             };
         }
 

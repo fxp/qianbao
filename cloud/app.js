@@ -25,7 +25,6 @@ function getOAuthUrl(hongbaoId) {
     return authUrl
 }
 function daysBetween(first, second) {
-
     // Copy date parts of the timestamps, discarding the time parts.
     var one = new Date(first.getFullYear(), first.getMonth(), first.getDate());
     var two = new Date(second.getFullYear(), second.getMonth(), second.getDate());
@@ -195,20 +194,20 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54cb7c79e4b042aefb47c07c'),
-                        new AV.Query(Hongbao).get('54cb7c79e4b042aefb47c07c')
+                        new AV.Query(Hongbao).get('54ccfef9e4b0d766b9004ef3'),
+                        new AV.Query(Hongbao).get('54ccfef9e4b0d766b9004ef3')
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {
                         me: me,
-                        //target: undefined
-                        target: target
+                        target: undefined
+                        //target: target
                     })
                 }, function (err) {
                     res.status(404).send('hongbao not exists,%s', targetHongbaoId)
                 })
         } else {
-            console.log('start auth')
+            console.log('start weixin auth')
             res.redirect(getOAuthUrl(targetHongbaoId))
         }
 

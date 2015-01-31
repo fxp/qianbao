@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>零钱包抢钱</title>
+    <title>零钱包送1000元红包，戳这里领钱！</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <meta http-equiv="cache-control" content="no-cache">
     <meta content="telephone=no" name="format-detection"/>
@@ -19,7 +19,7 @@
 
 <body ng-app="ngQianbao" ng-controller="QianbaoController">
 <div id='wx_logo' style='margin:0 auto;display:none;'>
-    <img src='/image/0.jpg'/>
+    <img src='/images/0.jpg'/>
 </div>
 <section class="wxhb_home">
     <section class="bd" id="hongbaoBg">
@@ -160,7 +160,7 @@
                         <section class="money_name_1">
                             {{support.get('supporter').get('nickname')}}<span>10-17  19：00</span>
                         </section>
-                        <section class="money_name_2">爱你无限帮聚财</section>
+                        <section class="money_name_2">{{support.get('desc')}}</section>
                     </section>
                     <section class="money_shu">+{{support.get('amount')}}</section>
                 </section>
@@ -183,7 +183,28 @@
 </section>
 </section>
 <!--        弹出层-->
-<a id="close" class="close" href="javascript:;" title="关闭当前窗口" style="text-decoration:none;">
+<a ng-click="closeAlert()" class="close" href="javascript:;" title="关闭当前窗口" style="text-decoration:none">
+    <div id="alertdiv2" style="display: none; width: 100%; height: 100%; overflow: hidden;background:transparent;">
+        <div class="tanchukuang">
+            <div class="wz_content">
+                <div class="one_wz"><span><img src="images/jiantou.png" style=" visibility:hidden"/></span>选择<span><img
+                                src="images/friendbz.png"/></span>分享给朋友<span><img src="images/jiantou.png"/></span>
+                </div>
+                <div class="two_wz">邀请好友帮你聚财</div>
+                <div class="three_wz">让你的红包扩大10倍哦!</div>
+            </div>
+            <div class="fcbz"></div>
+            <div class="wz_content">
+                <div class="two_wz_bl">你帮TA抢到{{supportAmount}}元</div>
+                <div class="two_wz_bl">你也获得100元红包</div>
+                <div class="three_wz_bl">让好友帮你聚财可增至1000元</div>
+            </div>
+            <div class="fcbz_fx"></div>
+        </div>
+    </div>
+</a>
+
+<a ng-click="closeAlert()" class="close" href="javascript:;" title="关闭当前窗口" style="text-decoration:none;">
     <div id="alertdiv" style="display: none; width: 100%; height: 100%; overflow: hidden;background:transparent;">
         <div class="tanchukuang">
             <div class="zhiyin"></div>
@@ -195,6 +216,27 @@
         </div>
     </div>
 </a>
+
+
+<a ng-click="closeAlert()" class="close" href="javascript:;" title="关闭当前窗口" style="text-decoration:none">
+    <div id="alertdiv3" style="display: none; width: 100%; height: 100%; overflow: hidden;background:transparent;">
+        <div class="tanchukuang">
+            <div class="wz_content">
+                <div class="one_wz"><span><img src="images/jiantou.png" style=" visibility:hidden"></span>选择<span><img
+                                src="images/friendbz.png"></span>分享给朋友<span><img src="images/jiantou.png"></span></div>
+                <div class="two_wz">邀请好友帮你聚财</div>
+                <div class="three_wz">让你的红包扩大10倍哦!</div>
+            </div>
+            <div class="fcbz"></div>
+            <div class="wz_content">
+                <div class="two_wz_bl">100元红包到手</div>
+                <div class="three_wz_bl">让好友帮你聚财可增至1000元</div>
+            </div>
+            <div class="fcbz_fx"></div>
+        </div>
+    </div>
+</a>
+
 <script src="https://leancloud.cn/scripts/lib/av-0.4.6.min.js"></script>
 <script>
 </script>
