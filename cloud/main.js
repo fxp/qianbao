@@ -47,6 +47,12 @@ function generateSupportSequence() {
     return supportSequence;
 }
 
+AV.Cloud.define("test", function (request, response) {
+    console.log('test');
+    response.success('test');
+})
+
+
 AV.Cloud.define("getHongbaoByCode", function (request, response) {
     var code = request.params.code
     //TODO https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code

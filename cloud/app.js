@@ -37,7 +37,6 @@ function daysBetween(first, second) {
     // Round down.
     return Math.floor(days);
 }
-console.log('b,%s', daysBetween(new Date(), new Date(2015, 0, 1)))
 
 function getAccessToken(code) {
     var deferred = new AV.Promise()
