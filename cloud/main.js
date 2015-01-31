@@ -5,11 +5,6 @@ require("cloud/app.js");
 var Hongbao = AV.Object.extend('Hongbao')
 var Support = AV.Object.extend('Support')
 
-var testCreateHongbao = {
-    "phoneNo": "123",
-    "openId": "id123"
-}
-
 var CONVERT_TABLE = [
     [10, 20, 30],
     [40, 50, 60],

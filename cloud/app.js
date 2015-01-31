@@ -38,6 +38,8 @@ function daysBetween(first, second) {
     return Math.floor(days);
 }
 
+//getAccessToken('00160807e0a6b6e97e84d4b9a5da5a47')
+
 function getAccessToken(code) {
     var deferred = new AV.Promise()
     var accessTokenUrl = url.format({
@@ -51,12 +53,14 @@ function getAccessToken(code) {
             grant_type: 'authorization_code'
         }
     })
+    console.log('start get access token,%s', JSON.stringify(accessTokenUrl))
     AV.Cloud.httpRequest({
         url: accessTokenUrl,
         headers: {
             'Content-Type': 'application/json'
         }
     }).then(function (httpResponse) {
+        console.log('success get access token,%s', httpResponse.text)
         deferred.resolve(JSON.parse(httpResponse.text))
     }, function (err) {
         console.log('weixin failed,%s', JSON.stringify(err))
@@ -64,6 +68,8 @@ function getAccessToken(code) {
     })
     return deferred
 }
+
+//getUserInfo('OezXcEiiBSKSxW0eoylIeG0ON5E3jo_9PTmRmY1N1sbwX0EqNj8YJe1JyeAPMXyTqFRodeY6H32KwyLDO2k3oqaH4cH0EZgozj4QuJ4wV6VFS5xVU3FAeGsrHZ1D6Jpsrk6irEuWtt9MP1YG9Qo4IQ','oAWh3tx8QWRqxsSi7K5Pj')
 
 function getUserInfo(accessToken, openid) {
     var deferred = new AV.Promise()
@@ -77,6 +83,7 @@ function getUserInfo(accessToken, openid) {
             lang: 'zh_CN'
         }
     })
+    console.log('get userinfo,%s', JSON.stringify(userInfoUrl))
     AV.Cloud.httpRequest({
         url: userInfoUrl,
         headers: {
@@ -144,25 +151,33 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     console.log('hongbao request,%s,%s,%s', targetHongbaoId, JSON.stringify(req.params), JSON.stringify(req.query))
 
     if (req.query.code) {
-        console.log('code:%s', req.query.code)
+        //console.log('code:%s', req.query.code)
+        //res.send(req.query.code)
+        //return;
         // TODO Get pre saved userinfo for this code
         getAccessToken(req.query.code).then(function (token) {
+            //res.send(token);
+            //return;
+
+            console.log('got token,%s', JSON.stringify(token));
             if (token.errcode) {
                 return AV.Promise.error('fetch access token failed,' + JSON.stringify(token))
             } else {
                 return getUserInfo(token.access_token, token.openid)
             }
         }).then(function (info) {
-            console.log('userinfo,%s', JSON.stringify(info))
-            userInfo = info
+            userInfo = info;
+            console.log('userinfo,%s', userInfo.openid);
             var query = new AV.Query(Hongbao)
             query.equalTo('openId', userInfo.openid)
             return query.first()
         }).then(function (hongbao) {
             var promises = []
             if (hongbao) {
+                console.log('exists hongbao,%s', JSON.stringify(hongbao));
                 promises.push(AV.Promise.as(hongbao))
             } else {
+                console.log('not exists hongbao');
                 promises.push(new Hongbao({
                     openId: userInfo.openid,
                     nickname: userInfo.nickname,
@@ -172,8 +187,10 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                 }).save())
             }
             if (targetHongbaoId) {
+                console.log('1');
                 promises.push(new AV.Query(Hongbao).get(targetHongbaoId))
             } else {
+                console.log('2');
                 promises.push(AV.Promise.as(hongbao))
             }
             return AV.Promise.when(promises)
@@ -193,14 +210,14 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54ccfef9e4b0d766b9004ef3'),
-                        new AV.Query(Hongbao).get('54ccfef9e4b0d766b9004ef3')
+                        new AV.Query(Hongbao).get('54cd1569e4b0294adb89da4a'),
+                        new AV.Query(Hongbao).get('54cd17e8e4b00472cd840cee')
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {
                         me: me,
-                        target: undefined
-                        //target: target
+                        //target: undefined
+                        target: target
                     })
                 }, function (err) {
                     res.status(404).send('hongbao not exists,%s', targetHongbaoId)

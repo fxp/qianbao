@@ -145,7 +145,6 @@ angular.module('ngQianbao', [])
                 alert('Internal error, should not be here')
             } else if (typeof target === 'undefined') {
                 // Seed users
-                alert('phoneNo,' + me.phoneNo)
                 if ((typeof me.phoneNo === 'undefined') || ("" == me.phoneNo)) {
                     // I have no phone number set
                     changeState('init')
@@ -286,10 +285,14 @@ angular.module('ngQianbao', [])
         }
 
         $scope.goInit = function () {
-            //location.href = "/hongbao/"
+            location.href = "/hongbao/"
 
-            alertDiv(document.getElementById("alertdiv2"));
-            showWelcome()
+            //alertDiv(document.getElementById("alertdiv2"));
+            //showWelcome()
+        }
+
+        $scope.goSite = function () {
+            location.href = 'http://51lqb.com/';
         }
 
 //活动结束页
@@ -326,12 +329,15 @@ angular.module('ngQianbao', [])
             } else {
                 t = document.getElementById("open_hb").lastElementChild;
                 document.getElementById("open_hb_help").style.display = "none";
-                //document.getElementById("hb_man").style.display = "block";
+                document.getElementById("help_hb").style.display = 'none'
+                document.getElementById("hb_man").style.display = 'block'
                 if (parseInt(m.innerHTML) == 1000) {
                     t.innerHTML = "已获得满额红包";
                     t.className = "fontone_help_man";
                     return true;
                 } else {
+                    document.getElementById("help_hb").style.display = "block";
+                    document.getElementById("hb_man").style.display = 'none';
                     return false;
                 }
             }
@@ -349,12 +355,13 @@ angular.module('ngQianbao', [])
             var friendsNum = document.getElementById("friendsNum");
 
             var query = new AV.Query(Support);
-            query.include('supporter')
-            query.equalTo('target', new Hongbao({id: target.objectId}))
+            query.include('supporter');
+            query.equalTo('target', new Hongbao({id: target.objectId}));
+            query.descending('createdAt');
             query.find().then(function (supports) {
                 friendsNum.innerHTML = supports.length
                 supports.forEach(function (s) {
-                    var amount = support.get('amount');
+                    var amount = s.get('amount');
                     if (amount < 40) {
                         s.set('desc', SUPPORT_DESC[0]);
                     } else if (amount < 70) {
