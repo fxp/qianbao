@@ -22,6 +22,11 @@
     <img src='/images/0.jpg'/>
 </div>
 <section class="wxhb_home">
+    <section class="bd_see" id="hongbaoBgLite">
+        <section class="fontone_see">您当前红包总额</section>
+        <section class="fonttwo_see"><span style=" font-size:4.3em; ">888</span><span style=" font-size:1.2em; ">元</span></section>
+    </section>
+
     <section class="bd" id="hongbaoBg">
         <!--          第一次领取红包显示的金额-->
         <section id="lqhbb" style="display:none" name="hide">
@@ -50,7 +55,7 @@
             <section class="anniu_help">
                 <section class="anniu_sy_help" id="helpArea">
                     <section class="wz">距离活动结束还有<span id="leftTime2">1</span>天</section>
-                    <section>您已成功帮好友聚财<span id="helpedMoney">{{supportAmount}}</span>元！</section>
+                    <section>您已成功帮好友聚财<span id="helpedMoney"></span>元！</section>
                 </section>
             </section>
         </section>
@@ -91,7 +96,7 @@
         </section>
         <!--            第一次打开链接，发现不能帮了，自己可以领-->
         <section class="anniu_man" id="changeA" style="display:none" name="hide">
-            <section class="anniu_sy_begins" id="changeToA">我也要领红包</section>
+            <section class="anniu_sy_begins" id="changeToA" ng-click="goInit()">我也要领红包</section>
         </section>
         <!--            第一次打开好友链接输入手机号文本-->
         <section id="helpFrindsTips" class="anniu_help_begin" style="display:none" name="hide">
