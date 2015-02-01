@@ -197,18 +197,18 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
         }).then(function (me, target) {
             console.log('me:%s', JSON.stringify(me))
             console.log('target:%s', JSON.stringify(target))
-            if (('timeline' != req.query.from) &&
-                (typeof me.get('phoneNo') != 'undefined')) {
-                res.render('hongbao', {
-                    me: me,
-                    target: me
-                })
-            } else {
-                res.render('hongbao', {
-                    me: me,
-                    target: target
-                })
-            }
+            //if (('timeline' != req.query.from) &&
+            //    (typeof me.get('phoneNo') != 'undefined')) {
+            //    res.render('hongbao', {
+            //        me: me,
+            //        target: me
+            //    })
+            //} else {
+            res.render('hongbao', {
+                me: me,
+                target: target
+            })
+            //}
         }, function (err) {
             console.log(err)
             res.status(500).send("failed," + JSON.stringify(err))
@@ -218,8 +218,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54cd3910e4b05d82823b866f'),
-                        new AV.Query(Hongbao).get('54cd3871e4b0fefed558e208')
+                        new AV.Query(Hongbao).get('54cdcc92e4b0f892c81e6682'),
+                        new AV.Query(Hongbao).get('54cd4c24e4b05f545f93152b')
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {

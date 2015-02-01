@@ -489,7 +489,7 @@ angular.module('ngQianbao', [])
             document.getElementById("open_hb_help").style.display = "block";
             document.getElementById("targetNickname").innerHTML = target.nickname
 
-            function refresh() {
+            function refresh(first) {
                 refreshSupportList()
                     .then(function (supports) {
                         if (supports.length == 0) {
@@ -522,15 +522,22 @@ angular.module('ngQianbao', [])
                                 t.innerHTML = "已获得满额红包";
                                 t.className = "fontone_help_man";
                             } else if ((total < 900) && alreadySupported) {
-                                document.getElementById("hongbaoBgLite").style.display = "block";
-                                document.getElementById("hongbaoBg").style.display = "none";
-                                getSupportList(me).then(function (supports) {
-                                    var total = 0;
-                                    supports.forEach(function (s) {
-                                        total += s.get('amount')
-                                    })
+                                if (first) {
+                                    document.getElementById("open_hb_help").style.display = "none";
+                                    document.getElementById("hb_man").style.display = 'none';
+                                    document.getElementById("help_hb").style.display = "block";
+                                    document.getElementById("helpedMoney").innerHTML = $scope.supportAmount;
+                                } else {
+                                    document.getElementById("hongbaoBgLite").style.display = "block";
+                                    document.getElementById("hongbaoBg").style.display = "none";
                                     document.getElementById("myTotal").innerHTML = total + 100;
-                                })
+                                }
+                                //getSupportList(me).then(function (supports) {
+                                //    var total = 0;
+                                //    supports.forEach(function (s) {
+                                //        total += s.get('amount')
+                                //    })
+                                //})
 
                             } else if (alreadySupported) {
                                 document.getElementById("open_hb_help").style.display = "none";
@@ -577,7 +584,7 @@ angular.module('ngQianbao', [])
                         } else {
                             //document.getElementById("open_hb_help").style.display = "none";
                             //document.getElementById("help_hb").style.display = "block";
-                            refresh()
+                            refresh(true)
                         }
                     }, function (err) {
                         document.getElementById("open_hb_help").style.display = "none";
