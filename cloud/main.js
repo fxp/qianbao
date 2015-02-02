@@ -11,9 +11,11 @@ var CONVERT_TABLE = [
     [70, 80, 90],
     [80, 100, 100]
 ]
-var GOAL_AMOUNT = 1000;
+var GOAL_AMOUNT = 900;
 var MAX_SUPPORT_COUNT = 25;
 var SPECIAL_SUPPORT_AMOUNT = 100;
+
+console.log('seq,%s', generateSupportSequence())
 
 function generateSupportSequence() {
     var supportSequence = [];
@@ -33,7 +35,7 @@ function generateSupportSequence() {
             }
         }
         total += newAmount
-        if (total >= 1000) {
+        if (total >= GOAL_AMOUNT) {
             supportSequence.push(newAmount - (total - GOAL_AMOUNT));
             break;
         }

@@ -552,7 +552,8 @@ angular.module('ngQianbao', [])
                             //document.getElementById("help_hb").style.display = 'none'
                             //document.getElementById("hb_man").style.display = 'none'
                             var m = document.getElementById("nowMoney");
-                            m.innerHTML = total + 100;
+                            var displayTotal = ((total + 100) >= 1000) ? 1000 : (total + 100);
+                            m.innerHTML = displayTotal;
                         }
                     }, function (err) {
                         alert(err)

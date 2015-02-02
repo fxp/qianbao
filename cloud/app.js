@@ -144,6 +144,22 @@ function generateSupportSequence() {
 var Hongbao = AV.Object.extend('Hongbao')
 var Support = AV.Object.extend('Support')
 
+app.get('/cleandata', function (req, res) {
+    new AV.Query(Hongbao).find()
+        .then(function (hongbaos) {
+            hongbaos.forEach(function (hongbao) {
+                hongbao.destroy()
+            })
+        })
+    new AV.Query(Support).find()
+        .then(function (supports) {
+            supports.forEach(function (support) {
+                support.destroy()
+            })
+        })
+    res.send('ok')
+})
+
 app.get('/hongbao/:hongbaoId?', function (req, res) {
     var userInfo;
     var targetHongbaoId = req.params.hongbaoId;
@@ -218,8 +234,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54cdcc92e4b0f892c81e6682'),
-                        new AV.Query(Hongbao).get('54cd4c24e4b05f545f93152b')
+                        new AV.Query(Hongbao).get('54cdfc10e4b00472cd8bb253'),
+                        new AV.Query(Hongbao).get('54cdf7dee4b05f545f9a55f0')
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {
