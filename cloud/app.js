@@ -3,10 +3,125 @@ var express = require('express');
 var app = express();
 var url = require('url')
 
+var wechatUtil = require('cloud/utils');
+wechatUtil(app)
+
 // App 全局配置
 app.set('views', 'cloud/views');   // 设置模板目录
 app.set('view engine', 'ejs');    // 设置 template 引擎
 app.use(express.bodyParser());    // 读取请求 body 的中间件
+
+
+// 输出数字签名对象
+var responseWithJson = function (res, data) {
+    // 允许跨域异步获取
+    res.set({
+        "Access-Control-Allow-Origin": "*"
+        , "Access-Control-Allow-Methods": "POST,GET"
+        , "Access-Control-Allow-Credentials": "true"
+    });
+    res.json(data);
+};
+
+// 随机字符串产生函数
+var createNonceStr = function () {
+    return Math.random().toString(36).substr(2, 15);
+};
+
+// 时间戳产生函数
+var createTimeStamp = function () {
+    return parseInt(new Date().getTime() / 1000) + '';
+};
+
+var errorRender = function (res, info, data) {
+    if (data) {
+        console.log(data);
+        console.log('---------');
+    }
+    res.set({
+        "Access-Control-Allow-Origin": "*"
+        , "Access-Control-Allow-Methods": "POST,GET"
+        , "Access-Control-Allow-Credentials": "true"
+    });
+    responseWithJson(res, {errmsg: 'error', message: info, data: data});
+};
+
+// 2小时后过期，需要重新获取数据后计算签名
+var expireTime = 7200 - 100;
+
+/**
+ 公司运营的各个公众平台appid及secret
+ 对象结构如：
+ [{
+			appid: 'wxa0f06601f19433af'
+			,secret: '097fd14bac218d0fb016d02f525d0b1e'
+		}]
+ */
+// 路径为'xxx/rsx/0'时表示榕树下
+// 路径为'xxx/rsx/1'时表示榕树下其它产品的公众帐号
+// 以此以0,1,2代表数组中的不同公众帐号
+// 以rsx或其它路径文件夹代表不同公司产品
+//var getAppsInfo = require('./../apps-info'); // 从外部加载app的配置信息
+//var appIds = getAppsInfo();
+/**
+ 缓存在服务器的每个URL对应的数字签名对象
+ {
+     'http://game.4gshu.com/': {
+         appid: 'wxa0f06601f194xxxx'
+         ,secret: '097fd14bac218d0fb016d02f525dxxxx'
+         ,timestamp: '1421135250'
+         ,noncestr: 'ihj9ezfxf26jq0k'
+     }
+ }
+ */
+var cachedSignatures = {};
+
+// 计算签名
+var calcSignature = function (ticket, noncestr, ts, url) {
+    var str = 'jsapi_ticket=' + ticket + '&noncestr=' + noncestr + '&timestamp=' + ts + '&url=' + url;
+    shaObj = new jsSHA(str, 'TEXT');
+    return shaObj.getHash('SHA-1', 'HEX');
+}
+
+// 获取微信签名所需的ticket
+var getTicket = function (url, appid, res, accessData) {
+    https.get('https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=' + accessData.access_token + '&type=jsapi', function (_res) {
+        var str = '', resp;
+        _res.on('data', function (data) {
+            str += data;
+        });
+        _res.on('end', function () {
+            console.log('return ticket:  ' + str);
+            try {
+                resp = JSON.parse(str);
+            } catch (e) {
+                return errorRender(res, '解析远程JSON数据错误', str);
+            }
+
+            var ts = createTimeStamp();
+            var nonceStr = createNonceStr();
+            var ticket = resp.ticket;
+            var signature = calcSignature(ticket, nonceStr, ts, url);
+
+            cachedSignatures[url] = {
+                nonceStr: nonceStr
+                , appid: appid
+                , timestamp: ts
+                , signature: signature
+                , url: url
+            };
+
+            responseWithJson(res, {
+                nonceStr: nonceStr
+                , timestamp: ts
+                , appid: appid
+                , signature: signature
+                , url: url
+            });
+        });
+    });
+};
+
 
 function getOAuthUrl(hongbaoId) {
     var redirectUrl = 'http://qianbao.avosapps.com/hongbao/' + ((hongbaoId) ? hongbaoId : '')
@@ -24,6 +139,7 @@ function getOAuthUrl(hongbaoId) {
     })
     return authUrl
 }
+
 function daysBetween(first, second) {
     // Copy date parts of the timestamps, discarding the time parts.
     var one = new Date(first.getFullYear(), first.getMonth(), first.getDate());
@@ -69,7 +185,50 @@ function getAccessToken(code) {
     return deferred
 }
 
+var createTimeStamp = function () {
+    return parseInt(new Date().getTime() / 1000) + '';
+};
+
+var createNonceStr = function () {
+    return Math.random().toString(36).substr(2, 15);
+};
+
+var calcSignature = function (ticket, noncestr, ts, url) {
+    var str = 'jsapi_ticket=' + ticket + '&noncestr=' + noncestr + '&timestamp=' + ts + '&url=' + url;
+    shaObj = new jsSHA(str, 'TEXT');
+    return shaObj.getHash('SHA-1', 'HEX');
+}
+
+function getJsApiToken(accessToken) {
+    var deferred = new AV.Promise()
+    var accessTokenUrl = url.format({
+        protocol: 'https',
+        hostname: 'api.weixin.qq.com',
+        pathname: '/cgi-bin/ticket/getticket',
+        query: {
+            access_token: accessToken,
+            type: 'jsapi'
+        }
+    })
+    console.log('start get access token,%s', JSON.stringify(accessTokenUrl))
+    AV.Cloud.httpRequest({
+        url: accessTokenUrl,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(function (httpResponse) {
+        console.log('success get access token,%s', httpResponse.text)
+        deferred.resolve(JSON.parse(httpResponse.text))
+    }, function (err) {
+        console.log('weixin failed,%s', JSON.stringify(err))
+        deferred.reject(err)
+    })
+    return deferred
+
+}
+
 //getUserInfo('OezXcEiiBSKSxW0eoylIeG0ON5E3jo_9PTmRmY1N1sbwX0EqNj8YJe1JyeAPMXyTqFRodeY6H32KwyLDO2k3oqaH4cH0EZgozj4QuJ4wV6VFS5xVU3FAeGsrHZ1D6Jpsrk6irEuWtt9MP1YG9Qo4IQ','oAWh3tx8QWRqxsSi7K5Pj')
+//var signature = calcSignature(ticket, noncestr, timestamp, url);
 
 function getUserInfo(accessToken, openid) {
     var deferred = new AV.Promise()
@@ -140,6 +299,10 @@ function generateSupportSequence() {
     return supportSequence;
 }
 
+app.get('/wxsdk', function (req, res) {
+    res.render('wxsdk')
+})
+
 
 var Hongbao = AV.Object.extend('Hongbao')
 var Support = AV.Object.extend('Support')
@@ -164,7 +327,7 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     var userInfo;
     var targetHongbaoId = req.params.hongbaoId;
 
-    console.log('hongbao request,%s,%s,%s', targetHongbaoId, JSON.stringify(req.params), JSON.stringify(req.query))
+    //console.log('hongbao request,%s,%s,%s', targetHongbaoId, JSON.stringify(req.params), JSON.stringify(req.query))
 
     if (req.query.code) {
         //console.log('code:%s', req.query.code)
@@ -172,13 +335,12 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
         //return;
         // TODO Get pre saved userinfo for this code
         getAccessToken(req.query.code).then(function (token) {
-            //res.send(token);
-            //return;
-
             console.log('got token,%s', JSON.stringify(token));
             if (token.errcode) {
                 return AV.Promise.error('fetch access token failed,' + JSON.stringify(token))
             } else {
+                getJsApiToken('http://qianbao.avosapps.com/test', 'wx85447170f9e1db12')
+
                 return getUserInfo(token.access_token, token.openid)
             }
         }).then(function (info) {
@@ -222,7 +384,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             //} else {
             res.render('hongbao', {
                 me: me,
-                target: target
+                target: target,
+                targetHongbaoId: targetHongbaoId
             })
             //}
         }, function (err) {
@@ -230,12 +393,12 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             res.status(500).send("failed," + JSON.stringify(err))
         })
     } else {
-        if (__local) {
+        if (req.query.test || __local) {
             new AV.Query(Hongbao).get(targetHongbaoId)
                 .then(function (hongbao) {
                     return AV.Promise.when([
-                        new AV.Query(Hongbao).get('54cdfc10e4b00472cd8bb253'),
-                        new AV.Query(Hongbao).get('54cdf7dee4b05f545f9a55f0')
+                        new AV.Query(Hongbao).get("54d08261e4b04e1d9f9e4999"),
+                        new AV.Query(Hongbao).get("54d08126e4b064341569affc")
                     ])
                 }).then(function (me, target) {
                     res.render('hongbao', {
@@ -250,7 +413,6 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             console.log('start weixin auth')
             res.redirect(getOAuthUrl(targetHongbaoId))
         }
-
     }
 });
 

@@ -15,8 +15,6 @@ var GOAL_AMOUNT = 900;
 var MAX_SUPPORT_COUNT = 25;
 var SPECIAL_SUPPORT_AMOUNT = 100;
 
-console.log('seq,%s', generateSupportSequence())
-
 function generateSupportSequence() {
     var supportSequence = [];
     var firstBlood = Math.floor(Math.random() * 3);

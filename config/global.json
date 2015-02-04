@@ -1,8 +1,8 @@
 {
-    "applicationName" : "qianbao",
-    "applicationId": "pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i",
-    "applicationKey": "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4",
-    "global": {
-        "avVersion": "0.3.1"
-    }
+  "applicationName": "qianbao",
+  "applicationId": "pxu918ooco9l3s66xldjpyb42jlxgt5d8kp354ot75fkxr8i",
+  "applicationKey": "amvkbm9du0i35ulqccod2o0n6k6eawphw0akomf8hkf5hry4",
+  "global": {
+    "avVersion": "0.3.1"
+  }
 }

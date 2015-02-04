@@ -9,12 +9,15 @@
     <meta content="telephone=no" name="format-detection"/>
     <link rel="stylesheet" type="text/css" href="css/hongBao.css">
     <script src="js/angular.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
     <script>
         var me = <%- (!!locals.me)?JSON.stringify(me):'undefined'%>;
         var target = <%- (!!locals.target)?JSON.stringify(target):'undefined'%>;
         me.id = (me.objectId) ? me.objectId : me.id;
         target.id = (target.objectId) ? target.objectId : target.id;
-    </script>x
+        var targetHongbaoId = (targetHongbaoId) ? targetHongbaoId : undefined;
+    </script>
 </head>
 
 <body ng-app="ngQianbao" ng-controller="QianbaoController">
