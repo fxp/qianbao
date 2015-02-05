@@ -46,34 +46,6 @@ var errorRender = function (res, info, data) {
     responseWithJson(res, {errmsg: 'error', message: info, data: data});
 };
 
-// 2小时后过期，需要重新获取数据后计算签名
-var expireTime = 7200 - 100;
-
-/**
- 公司运营的各个公众平台appid及secret
- 对象结构如：
- [{
-			appid: 'wxa0f06601f19433af'
-			,secret: '097fd14bac218d0fb016d02f525d0b1e'
-		}]
- */
-// 路径为'xxx/rsx/0'时表示榕树下
-// 路径为'xxx/rsx/1'时表示榕树下其它产品的公众帐号
-// 以此以0,1,2代表数组中的不同公众帐号
-// 以rsx或其它路径文件夹代表不同公司产品
-//var getAppsInfo = require('./../apps-info'); // 从外部加载app的配置信息
-//var appIds = getAppsInfo();
-/**
- 缓存在服务器的每个URL对应的数字签名对象
- {
-     'http://game.4gshu.com/': {
-         appid: 'wxa0f06601f194xxxx'
-         ,secret: '097fd14bac218d0fb016d02f525dxxxx'
-         ,timestamp: '1421135250'
-         ,noncestr: 'ihj9ezfxf26jq0k'
-     }
- }
- */
 var cachedSignatures = {};
 
 // 计算签名
@@ -183,20 +155,6 @@ function getAccessToken(code) {
         deferred.reject(err)
     })
     return deferred
-}
-
-var createTimeStamp = function () {
-    return parseInt(new Date().getTime() / 1000) + '';
-};
-
-var createNonceStr = function () {
-    return Math.random().toString(36).substr(2, 15);
-};
-
-var calcSignature = function (ticket, noncestr, ts, url) {
-    var str = 'jsapi_ticket=' + ticket + '&noncestr=' + noncestr + '&timestamp=' + ts + '&url=' + url;
-    shaObj = new jsSHA(str, 'TEXT');
-    return shaObj.getHash('SHA-1', 'HEX');
 }
 
 function getJsApiToken(accessToken) {
@@ -327,15 +285,8 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
     var userInfo;
     var targetHongbaoId = req.params.hongbaoId;
 
-    //console.log('hongbao request,%s,%s,%s', targetHongbaoId, JSON.stringify(req.params), JSON.stringify(req.query))
-
     if (req.query.code) {
-        //console.log('code:%s', req.query.code)
-        //res.send(req.query.code)
-        //return;
-        // TODO Get pre saved userinfo for this code
         getAccessToken(req.query.code).then(function (token) {
-            console.log('got token,%s', JSON.stringify(token));
             if (token.errcode) {
                 return AV.Promise.error('fetch access token failed,' + JSON.stringify(token))
             } else {
@@ -345,17 +296,14 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
             }
         }).then(function (info) {
             userInfo = info;
-            console.log('userinfo,%s', userInfo.openid);
             var query = new AV.Query(Hongbao)
             query.equalTo('openId', userInfo.openid)
             return query.first()
         }).then(function (hongbao) {
             var promises = []
             if (hongbao) {
-                console.log('exists hongbao,%s', JSON.stringify(hongbao));
                 promises.push(AV.Promise.as(hongbao))
             } else {
-                console.log('not exists hongbao');
                 promises.push(new Hongbao({
                     openId: userInfo.openid,
                     nickname: userInfo.nickname,
@@ -365,29 +313,26 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                 }).save())
             }
             if (targetHongbaoId) {
-                console.log('1');
                 promises.push(new AV.Query(Hongbao).get(targetHongbaoId))
             } else {
-                console.log('2');
                 promises.push(AV.Promise.as(hongbao))
             }
             return AV.Promise.when(promises)
         }).then(function (me, target) {
-            console.log('me:%s', JSON.stringify(me))
-            console.log('target:%s', JSON.stringify(target))
-            //if (('timeline' != req.query.from) &&
-            //    (typeof me.get('phoneNo') != 'undefined')) {
-            //    res.render('hongbao', {
-            //        me: me,
-            //        target: me
-            //    })
-            //} else {
-            res.render('hongbao', {
-                me: me,
-                target: target,
-                targetHongbaoId: targetHongbaoId
-            })
-            //}
+            var leftDays = daysBetween(new Date(), new Date(2015, 1, 26));
+            if (leftDays >= 0) {
+                res.render('hongbao', {
+                    me: me,
+                    target: target,
+                    targetHongbaoId: targetHongbaoId
+                })
+            } else {
+                res.render('end', {
+                    me: me,
+                    target: target,
+                    targetHongbaoId: targetHongbaoId
+                })
+            }
         }, function (err) {
             console.log(err)
             res.status(500).send("failed," + JSON.stringify(err))
@@ -401,16 +346,24 @@ app.get('/hongbao/:hongbaoId?', function (req, res) {
                         new AV.Query(Hongbao).get("54d08126e4b064341569affc")
                     ])
                 }).then(function (me, target) {
-                    res.render('hongbao', {
-                        me: me,
-                        //target: undefined
-                        target: target
-                    })
+                    var leftDays = daysBetween(new Date(), new Date(2015, 0, 26));
+                    if (leftDays < 0) {
+                        res.render('end', {
+                            me: me,
+                            target: target,
+                            targetHongbaoId: targetHongbaoId
+                        })
+                    } else {
+                        res.render('hongbao', {
+                            me: me,
+                            //target: undefined
+                            target: target
+                        })
+                    }
                 }, function (err) {
                     res.status(404).send('hongbao not exists,%s', targetHongbaoId)
                 })
         } else {
-            console.log('start weixin auth')
             res.redirect(getOAuthUrl(targetHongbaoId))
         }
     }

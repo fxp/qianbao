@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>活动结束</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta content="telephone=no" name="format-detection"/>
+    <link rel="stylesheet" type="text/css" href="css/hd.css">
+    <script src="js/angular.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script src="https://leancloud.cn/scripts/lib/av-0.4.6.min.js"></script>
+    <script>
+        var me = <%- (!!locals.me)?JSON.stringify(me):'undefined'%>;
+        var target = <%- (!!locals.target)?JSON.stringify(target):'undefined'%>;
+        me.id = (me.objectId) ? me.objectId : me.id;
+        target.id = (target.objectId) ? target.objectId : target.id;
+        var targetHongbaoId = (targetHongbaoId) ? targetHongbaoId : undefined;
+    </script>
+</head>
+<body ng-app="ngQianbao" ng-controller="QianbaoController">
+<div id='wx_logo' style='margin:0 auto;display:none;'>
+    <img src='/images/0.jpg'/>
+</div>
+<section class="wxhb_home">
+    <section class="bd">
+        <section class="fontone1_help">{{target.nickname}}</section>
+        <section class="fontone_help">当前红包总额</section>
+        <section class="fonttwo_help">
+            <span style=" font-size:4em; ">{{amount}}</span>
+            <span style=" font-size:1em; ">元</span>
+        </section>
+        <section class="anniu_help">
+            <section class="anniu_sy_help">
+                <section class="wz">本次活动已结束</section>
+                <section>敬请期待下次活动</section>
+            </section>
+        </section>
+    </section>
+    <section class="yiyou_btn">已有35位好友帮TA聚财</section>
+    <section class="help_jc">
+        <ul>
+            <li ng-repeat="support in supports">
+                <section class="apple_bz"
+                         style="background-image:url({{support.get('supporter').get('headimgurl')}});"></section>
+                <section class="money_show">
+                    <section class="money_name">
+                        <section class="money_name_1">
+                            {{support.get('supporter').get('nickname')}}<span>{{support.createdAt.getTime() | date: 'MM-dd HH:mm'}}</span>
+                        </section>
+                        <section class="money_name_2">{{support.get('desc')}}</section>
+                    </section>
+                    <section class="money_shu">+{{support.get('amount')}}</section>
+                </section>
+            </li>
+        </ul>
+    </section>
+</section>
+
+<script>
+    angular.module('ngQianbao', []).controller('QianbaoController', function ($scope) {
+        var Hongbao = AV.Object.extend("Hongbao");
+        var Support = AV.Object.extend("Support");
+
+        var SUPPORT_DESC = [
+            "新年贺喜帮聚财",
+            "多年密友帮聚财",
+            "爱你无限帮聚财",
+            "命中财神帮聚财"
+        ]
+
+        function refreshSupportList() {
+            var deferred = new AV.Promise()
+            var friendsNum = document.getElementById("friendsNum");
+            $scope.amount = 0
+
+            var query = new AV.Query(Support);
+            query.include('supporter');
+            query.equalTo('target', new Hongbao({id: target.objectId}));
+            query.descending('createdAt');
+            query.find().then(function (supports) {
+                friendsNum.innerHTML = supports.length
+                supports.forEach(function (s) {
+                    $scope.amount += s.get('amount');
+                    if (amount < 40) {
+                        s.set('desc', SUPPORT_DESC[0]);
+                    } else if (amount < 70) {
+                        s.set('desc', SUPPORT_DESC[1]);
+                    } else if (amount < 100) {
+                        s.set('desc', SUPPORT_DESC[2]);
+                    } else {
+                        s.set('desc', SUPPORT_DESC[3]);
+                    }
+                })
+                $scope.$apply(function () {
+                    $scope.supports = supports
+                })
+                deferred.resolve(supports)
+            }, function (err) {
+                console.log(err)
+                deferred.reject(err)
+            })
+            return deferred
+        }
+
+        refreshSupportList()
+    })
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

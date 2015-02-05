@@ -1,6 +1,4 @@
 require("cloud/app.js");
-// Use AV.Cloud.define to define as many cloud functions as you want.
-// For example:
 
 var Hongbao = AV.Object.extend('Hongbao')
 var Support = AV.Object.extend('Support')
@@ -42,16 +40,18 @@ function generateSupportSequence() {
     return supportSequence;
 }
 
-AV.Cloud.define("test", function (request, response) {
-    console.log('test');
-    response.success('test');
-})
-
-
-AV.Cloud.define("getHongbaoByCode", function (request, response) {
-    var code = request.params.code
-    //TODO https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code
-    // Error if hongbao not exists
+AV.Cloud.define("setFetched", function (request, response) {
+    var hongbaoId = request.params.hongbaoId;
+    new AV.Query(Hongbao)
+        .get(hongbaoId)
+        .then(function (hongbao) {
+            hongbao.set('isFetched', true)
+            return hongbao.save()
+        }).then(function (hongbao) {
+            response.success(hongbao)
+        }, function () {
+            response.error('no such hongbao')
+        })
 })
 
 AV.Cloud.define("createHongbao", function (request, response) {
@@ -79,11 +79,6 @@ AV.Cloud.define("createHongbao", function (request, response) {
     })
 });
 
-var testSupportHongbao = {
-    "supporterId": "123",
-    "targetId": "id123"
-}
-
 AV.Cloud.define("updatePhoneNo", function (request, response) {
     var phoneNo = request.params.phoneNo,
         hongbaoId = request.params.hongbaoId;
@@ -95,7 +90,6 @@ AV.Cloud.define("updatePhoneNo", function (request, response) {
         phoneNoQuery.first(),
         new AV.Query(Hongbao).get(hongbaoId)
     ]).then(function (existsHongbao, hongbao) {
-        console.log('exists,%s', JSON.stringify(existsHongbao))
         if (existsHongbao) {
             return AV.Promise.error('phone number already exists')
         } else {
@@ -115,11 +109,7 @@ AV.Cloud.define("supportHongbao", function (request, response) {
         targetId = request.params.targetId,
         alreadySupported = false;
 
-    // TODO Check all params
-    // TODO change amount
-
     // get all supports of this Hongbao
-    // TODO check if this user supported the hongbao, if not create a support, or response error
     var query = new AV.Query(Support)
     query.equalTo('target', new Hongbao({id: targetId}))
     AV.Promise.when([
@@ -156,14 +146,4 @@ AV.Cloud.define("supportHongbao", function (request, response) {
                 })
         }
     })
-
-    //new Support({
-    //    supporter: new Hongbao({id: supporterId}),
-    //    target: new Hongbao({id: hongbaoId}),
-    //    amount: 30
-    //}).save().then(function (support) {
-    //        response.success(support);
-    //    }, function (err) {
-    //        response.error(err);
-    //    })
 })
